@@ -2,6 +2,6 @@
 
 Kubezspaces's mission statement is:
 
-    To provide docs for kubernetes cluster.
+    To provide docs for clouds.
 
-Copyright 2020 caoyingjun (284224086@qq.com) Apache License 2.0
+Copyright 2020 caoyingjun (cao.yingjunz@gmail.com) Apache License 2.0
