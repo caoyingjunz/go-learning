@@ -1,1 +1,1 @@
-# kubez
+# kubernetes docs
