@@ -18,5 +18,6 @@
 		}
 	}
 	```
+	- kube-proxy 使用 [cobra](https://github.com/spf13/cobra) 来新建 `ProxyCommand`, 完成配置初始化和校验，以及程序的执行
 
-- TODO
+-
