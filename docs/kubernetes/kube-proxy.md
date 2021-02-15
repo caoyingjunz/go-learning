@@ -196,7 +196,7 @@
 	}
 	```
 
-- `proxyServer.Run`
+- `proxyServer.Run`
 	```
 	// This should never exit (unless CleanupAndExit is set).
 	func (s *ProxyServer) Run() error {
