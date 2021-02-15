@@ -1,5 +1,9 @@
-# informer
+# Informer 原理分析
 
-[informer 使用 demo]((https://github.com/caoyingjunz/golang-learning/blob/master/practise/kubernetes-practise/infomer-practise.go))
+### informer 机制
+- aaa
+- bbb
 
-### TODO: 后续完成 informer 的代码分析
+#### Informer 运行原理:
+
+![informer](../images/informer.png)
