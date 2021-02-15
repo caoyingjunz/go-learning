@@ -9,6 +9,7 @@ Kubezspaces 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 
 ## kubernetes
 - [informer 源码分析](./docs/kubernetes/informer.md)
+- [kube-controller-manager 源码分析](./docs/kubernetes/kube-controller-manager.md)
 - [kube-proxy 源码分析](./docs/kubernetes/kube-proxy.md)
 - [kubernetes 网络分析](./docs/kubernetes/kube-network.md)
 
