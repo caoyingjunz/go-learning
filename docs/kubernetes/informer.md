@@ -4,11 +4,11 @@
 ![informer](../images/informer.png)
 
 #### client-go components
-* Reflector: 用来直接和 kuber api server 通信，内部实现了 listwatch 机制，listwatch 就是用来监听资源变化的，一个listwatch 只对应一个资源，这个资源可以是 k8s 中内部的资源也可以是自定义的资源，当收到资源变化时(创建、删除、修改)时会将资源放到 Delta Fifo 队列中.
+* Reflector:A reflector, which is defined in type Reflector inside package cache, watches the Kubernetes API for the specified resource type (kind). The function in which this is done is ListAndWatch. The watch could be for an in-built resource or it could be for a custom resource. When the reflector receives notification about existence of new resource instance through the watch API, it gets the newly created object using the corresponding listing API and puts it in the Delta Fifo queue inside the watchHandler function.
 
-* Informer: 监听的资源的一个代码抽象，在 controller 的驱动下运行，能够将 delta filo 队列中的数据弹出处理.
+* Informer: An informer defined in the base controller inside package cache pops objects from the Delta Fifo queue. The function in which this is done is processLoop. The job of this base controller is to save the object for later retrieval, and to invoke our controller passing it the object.
 
-* Indexer: 构建安全的本地储存，在自定义 controller 中处理对象时就是基于对象的索引在本地缓存将对象查询出来进行处理.
+* Indexer: An indexer provides indexing functionality over objects. It is defined in type Indexer inside package cache. A typical indexing use-case is to create an index based on object labels. Indexer can maintain indexes based on several indexing functions. Indexer uses a thread-safe data store to store objects and their keys. There is a default function named MetaNamespaceKeyFunc defined in type Store inside package cache that generates an object’s key as <namespace>/<name> combination for that object.
 
 #### 姗姗来迟的 Demo
     package main
