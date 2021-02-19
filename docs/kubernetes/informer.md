@@ -60,7 +60,7 @@
         // Run informer
         informer.Run(stopCh)
     }
-- 完整 `demo` 请参考 [informer-demo](.../../../../examples/informer-demo.go)
+- 完整 `demo` 请参考 [informer-demo](.../../../../examples/informer/main.go)
 
 #### Informer 代码分析
 - TODO
