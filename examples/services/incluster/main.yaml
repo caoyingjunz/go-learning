@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-example3
+  labels:
+    app: k8s-example3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-example3
+  template:
+    metadata:
+      labels:
+        app: k8s-example3
+    spec:
+      containers:
+      - name: k8s-example3
+        image: k8s/example3:latest
+        imagePullPolicy: IfNotPresent
