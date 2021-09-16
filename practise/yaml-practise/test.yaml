@@ -1,0 +1,9 @@
+cache:
+  enable : false
+  list : [redis,mongoDB]
+mysql:
+  user : root
+  password : Tech2501
+  host : 8.8.8.8
+  port : 3306
+  name : cwi

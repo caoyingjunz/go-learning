@@ -1,21 +1,30 @@
-# Kubezspaces Overview
+# Go-Learning Overview
 
-Kubezspaces's mission statement is:
+Go-Learning's mission statement is:
 
-    To provide code docs for cloud.
+    To provide a learning and practise map for OpenStack, kubernetes, golang and the others.
 
-Kubezspaces 适用于有一定 `kubernetes` 经验，且想更进一步的同学。
+go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学。
+
+- kubernetes 功能增强 [Pixiu(貔貅)](https://github.com/caoyingjunz/pixiu)
 - 快速部署 [kubez-ansible](https://github.com/caoyingjunz/kubez-ansible)
+- workload 自动扩缩容 [kubez-autoscaler](https://github.com/caoyingjunz/kubez-autoscaler)
 
-## kubernetes
-- [CSI Plugin 注册机制源码分析](./docs/kubernetes/csi.md)
-- [kubernetes 网络分析](./docs/kubernetes/kube-network.md)
-- [kube-proxy 源码分析](./docs/kubernetes/kube-proxy.md)
-- [operator 详细梳理](./docs/kubernetes/operator.md)
-- [informer 原理分析](./docs/kubernetes/informer.md)
-- [reflector 详细梳理](./docs/kubernetes/reflector.md)
+## Kubernetes
+- [kube-proxy 源码分析](./doc/kubernetes/kube-proxy.md)
+- [kubernetes 网络分析](./doc/network.md)
+- [operator 用法展示](./doc/kubernetes/operator.md)
+- [cloud-provider-openstack](https://github.com/kubernetes/cloud-provider-openstack)
+
 
 ## Examples
-- [Kubez examples](./examples/README.md) 提供丰富的 `kubernetes` 用法举例.
+- [Examples](./examples/README.md) 提供丰富的 `kubernetes` 用法举例.
+
+## TODO
+- scheduler 代码分析
+- kubelet 代码分析
+- 微服务学习（istio）
+- gc 机制分析
+- pod 驱逐代码分析
 
 Copyright 2019 caoyingjun (cao.yingjunz@gmail.com) Apache License 2.0
