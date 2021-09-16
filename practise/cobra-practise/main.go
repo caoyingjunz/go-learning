@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"golang-learning/practise/cobra-practise/cmd"
+	"go-learning/practise/cobra-practise/cmd"
 )
 
 func main() {
