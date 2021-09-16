@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Config
+clusters:
+- name: "ttt"
+  cluster:
+    server: "https://172.16.50.151/k8s/clusters/c-rxm59"
+    certificate-authority-data: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJoekNDQ\
+      VM2Z0F3SUJBZ0lCQURBS0JnZ3Foa2pPUFFRREFqQTdNUnd3R2dZRFZRUUtFeE5rZVc1aGJXbGoKY\
+      kdsemRHVnVaWEl0YjNKbk1Sc3dHUVlEVlFRREV4SmtlVzVoYldsamJHbHpkR1Z1WlhJdFkyRXdIa\
+      GNOTWpBdwpOREl4TVRVeE5EUTVXaGNOTXpBd05ERTVNVFV4TkRRNVdqQTdNUnd3R2dZRFZRUUtFe\
+      E5rZVc1aGJXbGpiR2x6CmRHVnVaWEl0YjNKbk1Sc3dHUVlEVlFRREV4SmtlVzVoYldsamJHbHpkR\
+      1Z1WlhJdFkyRXdXVEFUQmdjcWhrak8KUFFJQkJnZ3Foa2pPUFFNQkJ3TkNBQVNzZHpjMjVRRFFqV\
+      DVSQWhsVk96THJYSFYzNFRjeUtDNUpxcnBQVGVFNQo5YkhZOW9JenhVVDBHMlFCMUlSS3hack4rc\
+      jJpREhzdDd2U1ZQcCtHaUIxem95TXdJVEFPQmdOVkhROEJBZjhFCkJBTUNBcVF3RHdZRFZSMFRBU\
+      UgvQkFVd0F3RUIvekFLQmdncWhrak9QUVFEQWdOSEFEQkVBaUFrc28xRzdQNXoKVE1KVlE2cFJBY\
+      1F4MGVwZmx2U2JGVkJXUE9IUEczbzlMZ0lnWEZ1c1J2eWRhNHU0eTBIN3MvZGI0bXdwdUV2MApWU\
+      1dqNDlyVEZkZGlrdDQ9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0="
+
+users:
+- name: "ttt"
+  user:
+    token: "kubeconfig-user-ssnd9:qjfwx285g7gnd545r7fms757jhdfd929nf52bwlpj829p52xz8sqcs"
+
+contexts:
+- name: "ttt"
+  context:
+    user: "ttt"
+    cluster: "ttt"
+
+current-context: "ttt"
