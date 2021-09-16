@@ -6,7 +6,7 @@ import (
 
 	klog "k8s.io/klog/v2"
 
-	"golang-learning/practise/klog-practise/test"
+	"go-learning/practise/klog-practise/test"
 )
 
 // https://github.com/kubernetes/klog/blob/master/examples/coexist_klog_v1_and_v2/coexist_klog_v1_and_v2.go

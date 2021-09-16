@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"golang-learning/practise/yaml-practise/module"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
+
+	"go-learning/practise/yaml-practise/module"
 )
 
 // refer to https://github.com/go-yaml/yaml
