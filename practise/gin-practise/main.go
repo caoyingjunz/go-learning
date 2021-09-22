@@ -5,6 +5,7 @@ import (
 
 	"go-learning/practise/gin-practise/endpoint"
 	"go-learning/practise/gin-practise/middleware"
+	"go-learning/practise/gin-practise/worker"
 )
 
 //GET http://127.0.0.1:8000/practise/get
@@ -18,7 +19,6 @@ import (
 //}
 
 func main() {
-
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
@@ -28,7 +28,14 @@ func main() {
 	{
 		p.GET("/get", endpoint.GetPractise)
 		p.POST("/post", endpoint.PostPractise)
+		p.POST("/queue", endpoint.TestQueue)
 	}
+
+	stopCh := make(chan struct{})
+	defer close(stopCh)
+
+	wk := worker.NewWorker()
+	go wk.Run(2, stopCh)
 
 	r.Run(":8000")
 }
