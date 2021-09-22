@@ -22,7 +22,7 @@ type Cmd interface {
 
 func NewExec() (Interface, error) {
 	execer := New()
-	if _, err := execer.LookPath("python3"); err != nil {
+	if _, err := execer.LookPath("ls"); err != nil {
 		return nil, fmt.Errorf("%s is required for sail runtime", "python3")
 	}
 
