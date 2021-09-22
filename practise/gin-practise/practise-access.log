@@ -1,1 +1,1 @@
-2021-09-22 23:08:40	info	middleware/middleware.go:38	| 200 |     230.273µs |       127.0.0.1 | POST | /practise/queue |
+2021-09-11 23:28:07	info	middleware/middleware.go:38	| 200 |     978.344µs |       127.0.0.1 | POST | /practise/post
