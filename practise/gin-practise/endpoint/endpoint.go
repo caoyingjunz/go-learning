@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go-learning/practise/gin-practise/hander"
-
 	"go-learning/practise/gin-practise/log"
+	"go-learning/practise/gin-practise/worker"
 )
 
 type GinResp struct {
@@ -57,5 +57,12 @@ func PostPractise(c *gin.Context) {
 	log.Glog.Info("Post Practise log")
 
 	r.Resp = gr
+	c.JSON(200, r)
+}
+
+func TestQueue(c *gin.Context) {
+	r := GinResp{}
+
+	worker.Queue.Add("test queue")
 	c.JSON(200, r)
 }
