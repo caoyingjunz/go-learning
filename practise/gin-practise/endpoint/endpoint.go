@@ -60,9 +60,30 @@ func PostPractise(c *gin.Context) {
 	c.JSON(200, r)
 }
 
+var WorkerSet = worker.NewWorker()
+
 func TestQueue(c *gin.Context) {
 	r := GinResp{}
 
-	worker.Queue.Add("test queue")
+	q := c.Query("queue")
+	if err := WorkerSet.DoTest(context.TODO(), q); err != nil {
+		r.SetMessage("test error queue")
+		return
+	}
+
+	r.Resp = "test ok queue"
+	c.JSON(200, r)
+}
+
+func TestAfterQueue(c *gin.Context) {
+	r := GinResp{}
+
+	q := c.Query("after")
+	if err := WorkerSet.DoAfterTest(context.TODO(), q); err != nil {
+		r.SetMessage("test error after queue")
+		return
+	}
+
+	r.Resp = "test ok after queue"
 	c.JSON(200, r)
 }

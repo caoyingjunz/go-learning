@@ -2,7 +2,14 @@ package workqueue
 
 import (
 	"sync"
+	"time"
 )
+
+type DelayingInterface interface {
+	Interface
+	// AddAfter adds an item to the workqueue after the indicated duration has passed
+	AddAfter(item string, duration time.Duration)
+}
 
 type Interface interface {
 	Add(item string)
@@ -49,7 +56,21 @@ func (q *Type) Get() string {
 	return item
 }
 
-func NewQueue() Interface {
+func (q *Type) AddAfter(item string, duration time.Duration) {
+	// immediately add things with no delay
+	if duration <= 0 {
+		q.Add(item)
+		return
+	}
+
+	go func() {
+		time.Sleep(duration * time.Second)
+		q.Add(item)
+		return
+	}()
+}
+
+func NewQueue() DelayingInterface {
 	return &Type{
 		queue: []string{},
 	}
