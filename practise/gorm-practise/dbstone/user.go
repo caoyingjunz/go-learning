@@ -23,6 +23,7 @@ type UserInterface interface {
 
 	List(ctx context.Context, name string) ([]models.User, error)
 
+	ListByPage(ctx context.Context, name string, page int, pageSize int) ([]models.User, error)
 	OptimisticUpdate(ctx context.Context, name string, resourceVersion int64, updates map[string]interface{}) error
 }
 
@@ -79,22 +80,56 @@ func (u *UserDB) GetRawUsers(names []string) (user []models.User, err error) {
 	return
 }
 
+// 分页查找
+func (u *UserDB) ListByPage(ctx context.Context, name string, page int, pageSize int) ([]models.User, error) {
+	// 校验参数合理性
+	if pageSize <= 0 || page <= 0 {
+		return nil, fmt.Errorf("invalid page: %d or pageSize: %d", page, pageSize)
+	}
+
+	var total int
+	if err := u.dbstone.Model(&models.User{}).Count(&total).Error; err != nil {
+		return nil, err
+	}
+	pageNum := total / pageSize
+	if total%pageSize != 0 {
+		pageNum++
+	}
+	// 限制下分页大小和范围
+	if page > pageNum {
+		page = pageNum
+	}
+
+	var users []models.User
+	if err := u.dbstone.Limit(pageSize).Offset((page-1)*pageSize).
+		Where("name = ?", name).Order("gmt_create desc").
+		Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	// DEBUG
+	fmt.Println("total:", total)
+	fmt.Println("pageNum:", pageNum)
+	return users, nil
+}
+
 // OptimisticUpdate 自定义乐观锁
 func (u *UserDB) OptimisticUpdate(ctx context.Context, name string, resourceVersion int64, updates map[string]interface{}) error {
 	updates["resource_version"] = resourceVersion + 1
 	updates["gmt_modified"] = time.Now()
 
 	uc := u.dbstone.Model(&models.User{}).
-		Where("name = ? and resource_version = ?", name, resourceVersion).Update(updates)
+		Where("name = ? and resource_version = ?", name, resourceVersion).
+		Update(updates)
 
 	if err := uc.Error; err != nil {
 		return err
 	}
 	// RowsAffected 为 0 的时候，说明未匹配到更新
 	if uc.RowsAffected == 0 {
+		// 没有更新说明数据已经被其他进程修改
 		return RecordNotUpdated
 	}
 
-	fmt.Println(uc.RowsAffected)
 	return nil
 }

@@ -48,6 +48,12 @@ func main() {
 		panic(err)
 	}
 
+	users, err := udb.ListByPage(context.TODO(), name, 2, 2)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("list page users:", users)
+
 	// 删除 user
 	//if err = udb.Delete(context.TODO(), u2.ID); err != nil {
 	//	panic(err)
