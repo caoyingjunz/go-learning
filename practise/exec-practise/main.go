@@ -10,6 +10,7 @@ var ErrExecutableNotFound = osexec.ErrNotFound
 
 type Interface interface {
 	Command(cmd string, args ...string) Cmd
+	CommandInDir(cmd string, dir string, args ...string) Cmd
 
 	// LookPath wraps os/exec.LookPath
 	LookPath(file string) (string, error)
@@ -42,6 +43,14 @@ func (executor *executor) Command(cmd string, args ...string) Cmd {
 	return osexec.Command(cmd, args...)
 }
 
+// Command is part of the Interface interface.
+func (executor *executor) CommandInDir(cmd string, dir string, args ...string) Cmd {
+	cd := osexec.Command(cmd, args...)
+	cd.Dir = dir
+
+	return cd
+}
+
 // LookPath is part of the Interface interface
 func (executor *executor) LookPath(file string) (string, error) {
 	return osexec.LookPath(file)
@@ -58,5 +67,10 @@ func main() {
 		panic(err)
 	}
 
+	// 切换 cmd 的执行目录
+	out, err = exec.CommandInDir("ls", "/home", "-al").CombinedOutput()
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println(string(out))
 }
