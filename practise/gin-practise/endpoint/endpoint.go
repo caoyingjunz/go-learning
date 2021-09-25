@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go-learning/practise/gin-practise/hander"
+	"go-learning/practise/gin-practise/k8s"
 	"go-learning/practise/gin-practise/log"
 	"go-learning/practise/gin-practise/worker"
 )
@@ -60,7 +61,10 @@ func PostPractise(c *gin.Context) {
 	c.JSON(200, r)
 }
 
-var WorkerSet = worker.NewWorker()
+var (
+	WorkerSet  = worker.NewWorker()
+	KubeEngine = k8s.NewKubeEngine()
+)
 
 func TestQueue(c *gin.Context) {
 	r := GinResp{}
@@ -68,6 +72,7 @@ func TestQueue(c *gin.Context) {
 	q := c.Query("queue")
 	if err := WorkerSet.DoTest(context.TODO(), q); err != nil {
 		r.SetMessage("test error queue")
+		c.JSON(400, r)
 		return
 	}
 
@@ -81,9 +86,28 @@ func TestAfterQueue(c *gin.Context) {
 	q := c.Query("after")
 	if err := WorkerSet.DoAfterTest(context.TODO(), q); err != nil {
 		r.SetMessage("test error after queue")
+		c.JSON(400, r)
 		return
 	}
 
 	r.Resp = "test ok after queue"
+	c.JSON(200, r)
+}
+
+func TestPod(c *gin.Context) {
+	r := GinResp{}
+
+	name := c.Query("name")
+	namespace := c.Query("namespace")
+	key := c.Query("key")
+
+	pod, err := KubeEngine.GetPod(context.TODO(), key, name, namespace)
+	if err != nil {
+		r.SetMessage(err.Error())
+		c.JSON(400, r)
+		return
+	}
+
+	r.Resp = pod
 	c.JSON(200, r)
 }
