@@ -10,12 +10,12 @@ import (
 // https://github.com/kubernetes/kubernetes/blob/master/pkg/kubelet/pluginmanager/pluginwatcher/plugin_watcher.go#L60
 
 func handleCreateEvent(event fsnotify.Event) error {
-	log.Println("Add file", event.Name)
+	log.Println("Add file", event)
 	return nil
 }
 
 func handleDeleteEvent(event fsnotify.Event) error {
-	log.Println("Delete file", event.Name)
+	log.Println("Delete file", event)
 	return nil
 }
 
@@ -37,11 +37,16 @@ func main() {
 				}
 			case err = <-fsWatcher.Errors:
 				log.Println("error:", err)
+
 			}
 		}
 	}(fsWatcher)
 
 	if err = fsWatcher.Add("/Users/caoyuan/workstation/go-learning/practise/fsnotify-practise"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err = fsWatcher.Add("/Users/caoyuan/workstation/go-learning"); err != nil {
 		log.Fatal(err)
 	}
 
