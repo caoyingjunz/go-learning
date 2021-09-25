@@ -20,6 +20,8 @@ POST http://127.0.0.1:8000/practise/post
 POST http://127.0.0.1:8000/practise/queue?queue=test
 
 POST http://127.0.0.1:8000/practise/queue/after?after=after
+
+GET http://127.0.0.1:8000/practise/pod?name=mariadb-0&namespace=kubez-sysns&key=config
 `
 
 func main() {
@@ -28,17 +30,20 @@ func main() {
 	r := gin.Default()
 	r.Use(middleware.LoggerToFile(), middleware.Auth)
 
+	stopCh := make(chan struct{})
+	defer close(stopCh)
+
+	go endpoint.WorkerSet.Run(2, stopCh)
+	go endpoint.KubeEngine.Start(stopCh)
+
 	p := r.Group("/practise")
 	{
 		p.GET("/get", endpoint.GetPractise)
 		p.POST("/post", endpoint.PostPractise)
 		p.POST("/queue", endpoint.TestQueue)
 		p.POST("/queue/after", endpoint.TestAfterQueue)
+		p.GET("/pod", endpoint.TestPod)
 	}
-
-	stopCh := make(chan struct{})
-	defer close(stopCh)
-	go endpoint.WorkerSet.Run(2, stopCh)
 
 	_ = r.Run(":8000")
 }
