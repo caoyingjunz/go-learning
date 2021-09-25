@@ -19,12 +19,19 @@ func handleDeleteEvent(event fsnotify.Event) error {
 	return nil
 }
 
-func main() {
+func Start(stopCh <-chan struct{}) error {
 	fsWatcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer fsWatcher.Close()
+
+	// 监听两个文件夹
+	if err = fsWatcher.Add("/Users/caoyuan/workstation/go-learning/practise/fsnotify-practise"); err != nil {
+		log.Fatal(err)
+	}
+	if err = fsWatcher.Add("/Users/caoyuan/workstation/go-learning"); err != nil {
+		log.Fatal(err)
+	}
 
 	go func(fsWatcher *fsnotify.Watcher) {
 		for {
@@ -37,16 +44,19 @@ func main() {
 				}
 			case err = <-fsWatcher.Errors:
 				log.Println("error:", err)
-
+			case <-stopCh:
+				fsWatcher.Close()
 			}
 		}
 	}(fsWatcher)
 
-	if err = fsWatcher.Add("/Users/caoyuan/workstation/go-learning/practise/fsnotify-practise"); err != nil {
-		log.Fatal(err)
-	}
+	return nil
+}
 
-	if err = fsWatcher.Add("/Users/caoyuan/workstation/go-learning"); err != nil {
+func main() {
+	stopCh := make(chan struct{})
+
+	if err := Start(stopCh); err != nil {
 		log.Fatal(err)
 	}
 
