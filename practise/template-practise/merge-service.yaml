@@ -1,0 +1,18 @@
+common:
+  apiVersion: {{ apiVersion }}
+  kind: "{{ kind }}"
+  metadata: { metadata }
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caoyingjun
+spec:
+  emails:
+    - test1@gmail.com
+    - test2@gmail.com
+  selector:
+    app: name
+    m1: v1
+    m2: v2
