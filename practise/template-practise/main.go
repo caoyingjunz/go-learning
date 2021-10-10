@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"text/template"
@@ -66,6 +67,16 @@ func main() {
 
 	// 写入标准输出
 	//tpl.Execute(os.Stdout, p)
+
+	// 写入变量1
+	var buf bytes.Buffer
+	tpl.Execute(&buf, p)
+	fmt.Println(string(buf.Bytes()))
+
+	// 写入变量2
+	//bs := strings.Builder{}
+	//tpl.Execute(&bs, p)
+	//fmt.Println(bs.String())
 
 	b, err := ioutil.ReadFile("./service.yaml")
 	if err != nil {
