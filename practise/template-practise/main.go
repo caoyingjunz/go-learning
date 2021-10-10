@@ -28,8 +28,8 @@ type Person struct {
 	Mods     map[string]string `json:"mods"`
 }
 
-func BytesCombine(pBytes ...[]byte) []byte {
-	return bytes.Join(pBytes, []byte(YAMLDocumentSeparator))
+func MergeBytes(mBytes ...[]byte) []byte {
+	return bytes.Join(mBytes, []byte(YAMLDocumentSeparator))
 }
 
 func main() {
@@ -72,7 +72,7 @@ func main() {
 		panic(err)
 	}
 
-	nb := BytesCombine([]byte(pt.CommonService), b)
+	nb := MergeBytes([]byte(pt.CommonService), b)
 	if err = ioutil.WriteFile("./merge-service.yaml", nb, 0640); err != nil {
 		panic(err)
 	}
