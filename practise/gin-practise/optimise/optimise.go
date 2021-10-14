@@ -29,26 +29,42 @@ type optimise struct {
 }
 
 func (o *optimise) setNameSpace(ns string) error {
-	o.ns = ns
+        ns := o.c.Query("namespace")
+	if len(ns) != 0 {
+		return fmt.Errorf("empty")
+	}
 
+	o.ns = ns	
 	return nil
 }
 
+// 处理post请求的参数
 func (o *optimise) shouldBindJSON() error {
 
 	return nil
 }
 
+type Svars struct{}
+
 func (o *optimise) Create(ns string) error {
+	var s Svars
+	if err := o.c.ShouldBindJSON(&s); err != nil {
+		return err
+	}
+
 	if err := o.setNameSpace(ns); err != nil {
 		return err
 	}
 
-	fmt.Print("optimise create", o.ns)
+	fmt.Print("optimise create", o.ns, s)
 	return nil
 }
 
 func (o *optimise) Get() (string, error) {
+	if err := o.setNamespace(); err != nil {
+		return "", err
+	}
+
 	return o.ns, nil
 }
 
