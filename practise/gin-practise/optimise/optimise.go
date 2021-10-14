@@ -29,8 +29,12 @@ type optimise struct {
 }
 
 func (o *optimise) setNameSpace(ns string) error {
-	o.ns = ns
+        ns := o.c.Query("namespace")
+	if len(ns) != 0 {
+		return fmt.Errorf("empty")
+	}
 
+	o.ns = ns	
 	return nil
 }
 
@@ -40,7 +44,6 @@ func (o *optimise) shouldBindJSON() error {
 	return nil
 }
 
-
 type Svars struct{}
 
 func (o *optimise) Create(ns string) error {
@@ -49,23 +52,11 @@ func (o *optimise) Create(ns string) error {
 		return err
 	}
 
-
-func (o *optimise) Create(ns string) error {
 	if err := o.setNameSpace(ns); err != nil {
 		return err
 	}
 
-	fmt.Print("optimise create", o.ns)
-	return nil
-}
-
-func (o *optimise) setNamespace() error {
-	ns := o.c.Query("namespace")
-	if len(ns) != 0 {
-		return fmt.Errorf("empty")
-	}
-
-	o.ns = ns
+	fmt.Print("optimise create", o.ns, s)
 	return nil
 }
 
