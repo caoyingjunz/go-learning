@@ -40,6 +40,7 @@ func (o *optimise) shouldBindJSON() error {
 	return nil
 }
 
+
 type Svars struct{}
 
 func (o *optimise) Create(ns string) error {
@@ -48,6 +49,8 @@ func (o *optimise) Create(ns string) error {
 		return err
 	}
 
+
+func (o *optimise) Create(ns string) error {
 	if err := o.setNameSpace(ns); err != nil {
 		return err
 	}
