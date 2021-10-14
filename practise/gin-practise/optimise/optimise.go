@@ -28,13 +28,12 @@ type optimise struct {
 	ns string
 }
 
-func (o *optimise) setNameSpace(ns string) error {
-        ns := o.c.Query("namespace")
-	if len(ns) != 0 {
+func (o *optimise) setNamespace(ns string) error {
+	n := o.c.Query("namespace")
+	if len(n) != 0 {
 		return fmt.Errorf("empty")
 	}
-
-	o.ns = ns	
+	o.ns = n
 	return nil
 }
 
@@ -52,7 +51,7 @@ func (o *optimise) Create(ns string) error {
 		return err
 	}
 
-	if err := o.setNameSpace(ns); err != nil {
+	if err := o.setNamespace(ns); err != nil {
 		return err
 	}
 
@@ -61,7 +60,7 @@ func (o *optimise) Create(ns string) error {
 }
 
 func (o *optimise) Get() (string, error) {
-	if err := o.setNamespace(); err != nil {
+	if err := o.setNamespace("s"); err != nil {
 		return "", err
 	}
 
