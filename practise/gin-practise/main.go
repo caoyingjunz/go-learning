@@ -43,6 +43,7 @@ func main() {
 		p.POST("/queue", endpoint.TestQueue)
 		p.POST("/queue/after", endpoint.TestAfterQueue)
 		p.GET("/pod", endpoint.TestPod)
+		p.POST("/optimise", endpoint.TestOptimise)
 	}
 
 	_ = r.Run(":8000")

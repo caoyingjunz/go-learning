@@ -111,3 +111,22 @@ func TestPod(c *gin.Context) {
 	r.Resp = pod
 	c.JSON(200, r)
 }
+
+func TestOptimise(c *gin.Context) {
+	r := GinResp{}
+	// 在 Create 里面进行参数的解析和异常处理
+	if err := Practise.Optimise(c).Create("dd"); err != nil {
+		return
+	}
+
+	c.JSON(200, r)
+}
+
+func GetOptimise(c *gin.Context) {
+	r := GinResp{}
+	var err error
+	// 在 get 里设置参数
+	if r.Resp, err = Practise.Optimise(c).Get(); err != nil {
+		return
+	}
+}
