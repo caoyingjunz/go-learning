@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
+	"testing"
 	"time"
 )
 
@@ -15,6 +16,25 @@ func Get(i string) error {
 	time.Sleep(2 * time.Second)
 	fmt.Println("i", i)
 	return fmt.Errorf("test error")
+}
+
+//https://github.com/kubernetes/kubernetes/blob/ea0764452222146c47ec826977f49d7001b0ea8c/pkg/scheduler/metrics/metric_recorder_test.go#L81
+
+func TestClear(t *testing.T) {
+	var wg sync.WaitGroup
+	incLoops, decLoops := 100, 80
+	wg.Add(incLoops + decLoops)
+	for i := 0; i < incLoops; i++ {
+		go func() {
+			wg.Done()
+		}()
+	}
+	for i := 0; i < decLoops; i++ {
+		go func() {
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 }
 
 func main() {
