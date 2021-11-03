@@ -55,9 +55,15 @@ func Start(stopCh <-chan struct{}) error {
 			select {
 			case event := <-fsWatcher.Events:
 				if event.Op&fsnotify.Create == fsnotify.Create {
-					_ = handleCreateEvent(event)
+					err = handleCreateEvent(event)
+					if err != nil {
+						fmt.Println("create event failed", err)
+					}
 				} else if event.Op&fsnotify.Remove == fsnotify.Remove {
-					handleDeleteEvent(event)
+					err = handleDeleteEvent(event)
+					if err != nil {
+						fmt.Println("remove event failed", err)
+					}
 				}
 			case err = <-fsWatcher.Errors:
 				log.Println("error:", err)
@@ -72,7 +78,6 @@ func Start(stopCh <-chan struct{}) error {
 
 func main() {
 	stopCh := make(chan struct{})
-
 	if err := Start(stopCh); err != nil {
 		log.Fatal(err)
 	}

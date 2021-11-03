@@ -91,6 +91,12 @@ func (k *KubeEngine) Start(stopCh chan struct{}) error {
 	if err != nil {
 		return err
 	}
+
+	// Traverse plugin dir and add filesystem watchers before starting the plugin processing goroutine.
+	//if err := w.traversePluginDir(w.path); err != nil {
+	//	klog.ErrorS(err, "Failed to traverse plugin socket path", "path", w.path)
+	//}
+
 	err = fsWatcher.Add(k.path)
 	if err != nil {
 		return err
