@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -89,6 +91,12 @@ func (k *KubeEngine) Start(stopCh chan struct{}) error {
 	if err != nil {
 		return err
 	}
+
+	// Traverse plugin dir and add filesystem watchers before starting the plugin processing goroutine.
+	//if err := w.traversePluginDir(w.path); err != nil {
+	//	klog.ErrorS(err, "Failed to traverse plugin socket path", "path", w.path)
+	//}
+
 	err = fsWatcher.Add(k.path)
 	if err != nil {
 		return err
@@ -99,9 +107,13 @@ func (k *KubeEngine) Start(stopCh chan struct{}) error {
 			select {
 			case event := <-fsWatcher.Events:
 				if event.Op&fsnotify.Create == fsnotify.Create {
-					_ = k.handleCreateEvent(event)
+					if err = k.handleCreateEvent(event); err != nil {
+						fmt.Println("create event failed", err)
+					}
 				} else if event.Op&fsnotify.Remove == fsnotify.Remove {
-					k.handleDeleteEvent(event)
+					if err = k.handleDeleteEvent(event); err != nil {
+						fmt.Println("delete event failed", err)
+					}
 				}
 			case err = <-fsWatcher.Errors:
 				log.Println("error:", err)
@@ -129,35 +141,34 @@ func (k *KubeEngine) GetPod(cxt context.Context, key string, name string, namesp
 }
 
 func (k *KubeEngine) handleCreateEvent(event fsnotify.Event) error {
-	configFile := event.Name
 	client, err := k.newClient(event.Name)
 	if err != nil {
 		//打印log
 		return err
 	}
 
-	parts := strings.Split(configFile, "/")
-	if len(parts) == 0 {
-		return fmt.Errorf("文件路径不对")
+	fi, err := os.Stat(event.Name)
+	if err != nil {
+		return err
 	}
 
-	key := parts[len(parts)-1]
-	k.client.Add(key, client)
+	if strings.HasPrefix(fi.Name(), ".") || fi.IsDir() {
+		fmt.Println("Ignoring file (starts with '.') or dir", "path", fi.Name())
+		return nil
+	}
 
-	fmt.Println(key, "register")
+	name := fi.Name()
+
+	k.client.Add(name, client)
+	fmt.Println(name, "register")
 	return nil
 }
 
 func (k *KubeEngine) handleDeleteEvent(event fsnotify.Event) error {
-	parts := strings.Split(event.Name, "/")
-	if len(parts) == 0 {
-		return fmt.Errorf("文件路径不对")
-	}
+	_, name := filepath.Split(event.Name)
 
-	key := parts[len(parts)-1]
-	k.client.Delete(key)
-
-	fmt.Println(key, "unregister")
+	k.client.Delete(name)
+	fmt.Println(name, "unregister")
 	return nil
 }
 

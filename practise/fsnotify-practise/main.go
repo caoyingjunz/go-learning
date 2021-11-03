@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -11,11 +14,20 @@ import (
 
 func handleCreateEvent(event fsnotify.Event) error {
 	log.Println("Add file", event)
+	fi, err := os.Stat(event.Name)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(fi.Name())
 	return nil
 }
 
 func handleDeleteEvent(event fsnotify.Event) error {
 	log.Println("Delete file", event)
+
+	_, name := filepath.Split(event.Name)
+	fmt.Println(name)
 	return nil
 }
 
@@ -24,6 +36,11 @@ func Start(stopCh <-chan struct{}) error {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Traverse plugin dir and add filesystem watchers before starting the plugin processing goroutine.
+	//if err := w.traversePluginDir(w.path); err != nil {
+	//	klog.ErrorS(err, "Failed to traverse plugin socket path", "path", w.path)
+	//}
 
 	// 监听两个文件夹
 	if err = fsWatcher.Add("/Users/caoyuan/workstation/go-learning/practise/fsnotify-practise"); err != nil {
@@ -38,9 +55,15 @@ func Start(stopCh <-chan struct{}) error {
 			select {
 			case event := <-fsWatcher.Events:
 				if event.Op&fsnotify.Create == fsnotify.Create {
-					_ = handleCreateEvent(event)
+					err = handleCreateEvent(event)
+					if err != nil {
+						fmt.Println("create event failed", err)
+					}
 				} else if event.Op&fsnotify.Remove == fsnotify.Remove {
-					handleDeleteEvent(event)
+					err = handleDeleteEvent(event)
+					if err != nil {
+						fmt.Println("remove event failed", err)
+					}
 				}
 			case err = <-fsWatcher.Errors:
 				log.Println("error:", err)
@@ -55,7 +78,6 @@ func Start(stopCh <-chan struct{}) error {
 
 func main() {
 	stopCh := make(chan struct{})
-
 	if err := Start(stopCh); err != nil {
 		log.Fatal(err)
 	}
