@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 
@@ -24,6 +25,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(fmt.Sprintf("%+v", config))
 
-	fmt.Println(config.Mysql.Host)
+	jconfig, err := json.Marshal(config)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(jconfig))
+
 }
