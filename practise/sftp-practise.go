@@ -2,25 +2,45 @@ package main
 
 import (
 	"fmt"
-	"net"
+	"io/ioutil"
 	"os"
+	"path"
 	"time"
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
+	"k8s.io/client-go/util/homedir"
 )
 
 func SftpConnect(user, passwd, host string, port int) (*sftp.Client, error) {
-	auth := make([]ssh.AuthMethod, 0)
-	auth = append(auth, ssh.Password(passwd))
+	// 1. 使用密码
+	//clientConfig := &ssh.ClientConfig{
+	//	User: user,
+	//	Auth: []ssh.AuthMethod{
+	//		ssh.Password(passwd),
+	//	},
+	//	Timeout: 30 * time.Second,
+	//	HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+	//		return nil
+	//	},
+	//}
 
+	// 2. 使用公钥
+	key, err := ioutil.ReadFile(path.Join(homedir.HomeDir(), ".ssh", "id_rsa"))
+	if err != nil {
+		return nil, err
+	}
+	signer, err := ssh.ParsePrivateKey(key)
+	if err != nil {
+		return nil, err
+	}
 	clientConfig := &ssh.ClientConfig{
-		User:    user,
-		Auth:    auth,
-		Timeout: 30 * time.Second,
-		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-			return nil
+		User: user,
+		Auth: []ssh.AuthMethod{
+			ssh.PublicKeys(signer),
 		},
+		Timeout:         30 * time.Second,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
 	addr := fmt.Sprintf("%s:%d", host, port)
