@@ -6,6 +6,8 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/kubernetes/pkg/controller/podautoscaler/metrics"
+
 	"k8s.io/client-go/tools/clientcmd"
 )
 
@@ -19,6 +21,6 @@ func main() {
 		panic(err)
 	}
 
-	cs.
+	cs.AutoscalingV2().HorizontalPodAutoscalers("").List(context.TODO(), metav1.ListOptions{})
 
 }
