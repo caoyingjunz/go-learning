@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -18,7 +19,7 @@ func main() {
 		panic(err)
 	}
 
-	pod, _ := clientset.CoreV1().Pods("kubez-sysns").Get("weblibriry-mariadb-0", metav1.GetOptions{})
+	pod, _ := clientset.CoreV1().Pods("kubez-sysns").Get(context.TODO(), "weblibriry-mariadb-0", metav1.GetOptions{})
 
 	for _, podVolume := range pod.Spec.Volumes {
 		fmt.Println(podVolume.VolumeSource)

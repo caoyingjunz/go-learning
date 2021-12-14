@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -50,7 +51,7 @@ func NewDploymet() *Deployment {
 func (i Ingress) Get(namespace string, name string) (ing *v1beta1.Ingress, err error) {
 	ing, err = clientset.ExtensionsV1beta1().
 		Ingresses(namespace).
-		Get(name, metav1.GetOptions{})
+		Get(context.TODO(), name, metav1.GetOptions{})
 	return
 }
 
@@ -86,7 +87,7 @@ func (i Ingress) Create(namespace string, name string) (ing *v1beta1.Ingress, er
 
 	ing, err = clientset.ExtensionsV1beta1().
 		Ingresses(namespace).
-		Create(ingress)
+		Create(context.TODO(), ingress, metav1.CreateOptions{})
 	return
 }
 
@@ -99,7 +100,7 @@ func (i Ingress) Create(namespace string, name string) (ing *v1beta1.Ingress, er
 
 func (s Service) Get(namespace string, name string) (service *v1.Service, err error) {
 	service, err = clientset.CoreV1().Services(namespace).
-		Get(name, metav1.GetOptions{})
+		Get(context.TODO(), name, metav1.GetOptions{})
 	return
 }
 
@@ -125,7 +126,7 @@ func (s Service) Create(namespace string, name string) (service *v1.Service, err
 	}
 
 	service, err = clientset.CoreV1().Services(namespace).
-		Create(svc)
+		Create(context.TODO(), svc, metav1.CreateOptions{})
 	return
 }
 
@@ -136,13 +137,13 @@ func (s Service) Update(namespace string, name string) (service *v1.Service, err
 	}
 	svc.Spec.Ports[0].TargetPort = intstr.FromInt(98)
 	service, err = clientset.CoreV1().Services(namespace).
-		Update(svc)
+		Update(context.TODO(), svc, metav1.UpdateOptions{})
 	return
 }
 
 func (d Deployment) Get(namespace string, name string) (deploy *appsv1.Deployment, err error) {
 	deploy, err = clientset.AppsV1().Deployments(namespace).
-		Get(name, metav1.GetOptions{})
+		Get(context.TODO(), name, metav1.GetOptions{})
 	return
 }
 
