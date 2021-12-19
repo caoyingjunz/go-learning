@@ -1,6 +1,17 @@
 package main
 
 import (
+	"context"
+	"fmt"
+
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/kubernetes/pkg/controller/podautoscaler/metrics"
+	resourceclient "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
+	"k8s.io/metrics/pkg/client/custom_metrics"
+	"k8s.io/metrics/pkg/client/external_metrics"
+	//autoscalingapi "k8s.io/api/autoscaling/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	cacheddiscovery "k8s.io/client-go/discovery/cached"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
@@ -8,10 +19,6 @@ import (
 	"k8s.io/client-go/scale"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/controller-manager/pkg/clientbuilder"
-	"k8s.io/kubernetes/pkg/controller/podautoscaler/metrics"
-	resourceclient "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
-	"k8s.io/metrics/pkg/client/custom_metrics"
-	"k8s.io/metrics/pkg/client/external_metrics"
 )
 
 func main() {
@@ -38,7 +45,51 @@ func main() {
 		external_metrics.NewForConfigOrDie(clientConfig),
 	)
 
+	d, err := hpaClient.AppsV1().Deployments("default").Get(context.TODO(), "test1", metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	selector, err := metav1.LabelSelectorAsSelector(d.Spec.Selector)
+	// 获取 metrice cpu
+	podMetricsInfo, time, err := metricsClient.GetResourceMetric(context.TODO(), v1.ResourceMemory, "default", selector, "nginx")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("time", time)
+	for podName, podMetric := range podMetricsInfo {
+		fmt.Println("podName", podName)
+		fmt.Println("podMetric", podMetric)
+	}
+
+	gr := schema.GroupResource{
+		Group:    "apps",
+		Resource: "deployments",
+	}
+
+	// 更新 scale
+	//_, err = scaleClient.Scales("default").Update(context.TODO(), gr, &autoscalingapi.Scale{
+	//	ObjectMeta: metav1.ObjectMeta{
+	//		Name:      "test1",
+	//		Namespace: "default",
+	//	},
+	//	Spec: autoscalingapi.ScaleSpec{
+	//		Replicas: int32(4),
+	//	},
+	//}, metav1.UpdateOptions{})
+	//if err != nil {
+	//	panic(err)
+	//}
+
 	scaleKindResolver := scale.NewDiscoveryScaleKindResolver(hpaClient.Discovery())
 	scaleClient, err := scale.NewForConfig(clientConfig, restMapper, dynamic.LegacyAPIPathResolverFunc, scaleKindResolver)
 
+	// 获取 scale
+	sc, err := scaleClient.Scales("default").Get(context.TODO(), gr, "test1", metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(sc.Spec.Replicas)
 }
