@@ -132,7 +132,7 @@ func (k *KubeEngine) GetPod(cxt context.Context, key string, name string, namesp
 		return nil, fmt.Errorf("%s not register", key)
 	}
 
-	pod, err := clientSet.CoreV1().Pods(namespace).Get(name, metav1.GetOptions{})
+	pod, err := clientSet.CoreV1().Pods(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

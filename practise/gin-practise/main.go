@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go-learning/practise/gin-practise/endpoint"
 	"go-learning/practise/gin-practise/middleware"
@@ -46,5 +49,21 @@ func main() {
 		p.POST("/optimise", endpoint.TestOptimise)
 	}
 
+	http.HandleFunc("/", downloadFile) //   设置访问路由
+	go http.ListenAndServe(":8080", nil)
+
 	_ = r.Run(":8000")
+}
+
+func downloadFile(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fileName := r.Form["filename"]
+	fmt.Println(fileName)
+	path := "/Users/xxx/shuku.zip"
+	http.ServeFile(w, r, path)
 }
