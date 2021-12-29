@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -37,7 +36,7 @@ func main() {
 	defer close(stopCh)
 
 	go endpoint.WorkerSet.Run(2, stopCh)
-	go endpoint.KubeEngine.Start(stopCh)
+	//go endpoint.KubeEngine.Start(stopCh)
 
 	p := r.Group("/practise")
 	{
@@ -47,23 +46,39 @@ func main() {
 		p.POST("/queue/after", endpoint.TestAfterQueue)
 		p.GET("/pod", endpoint.TestPod)
 		p.POST("/optimise", endpoint.TestOptimise)
+		p.GET("/download", Download)
 	}
 
-	http.HandleFunc("/", downloadFile) //   设置访问路由
-	go http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/download", DownloadFile)
+	go func() {
+		err := http.ListenAndServe(":8080", nil)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	_ = r.Run(":8000")
 }
 
-func downloadFile(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		fmt.Println(err)
+func Download(c *gin.Context) {
+	filename := c.Query("filename")
+
+	c.Header("Content-Type", "application/zip")
+	c.Header("Content-Disposition", "attachment; filename="+filename+".zip")
+	c.File("/Users/xxx/yyy.zip")
+}
+
+func DownloadFile(w http.ResponseWriter, req *http.Request) {
+	fileName := req.URL.Query().Get("filename")
+	if len(fileName) == 0 {
+		w.WriteHeader(400)
+		w.Write([]byte("get file name failed"))
 		return
 	}
 
-	fileName := r.Form["filename"]
-	fmt.Println(fileName)
-	path := "/Users/xxx/shuku.zip"
-	http.ServeFile(w, r, path)
+	w.Header().Set("Content-Disposition", "attachment; filename="+fileName+".zip")
+	w.Header().Set("Content-Type", "application/zip")
+
+	path := "/Users/xxx/yyy.zip"
+	http.ServeFile(w, req, path)
 }
