@@ -30,10 +30,13 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.23.0
 	k8s.io/apimachinery v0.23.0
+	k8s.io/cli-runtime v0.0.0
 	k8s.io/client-go v0.23.0
+	k8s.io/component-base v0.0.0
 	k8s.io/controller-manager v0.0.0
 	k8s.io/klog v0.4.0
 	k8s.io/klog/v2 v2.30.0
+	k8s.io/kubectl v0.0.0
 	k8s.io/kubernetes v1.23.0
 	k8s.io/metrics v0.23.0
 )
