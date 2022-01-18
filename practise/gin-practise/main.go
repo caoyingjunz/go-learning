@@ -63,9 +63,9 @@ func main() {
 func Download(c *gin.Context) {
 	filename := c.Query("filename")
 
-	c.Header("Content-Type", "application/zip")
-	c.Header("Content-Disposition", "attachment; filename="+filename+".zip")
-	c.File("/Users/xxx/yyy.zip")
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Disposition", "attachment; filename="+filename+".tar")
+	c.File("/Users/xxx/yyy.tar")
 }
 
 func DownloadFile(w http.ResponseWriter, req *http.Request) {
@@ -76,9 +76,9 @@ func DownloadFile(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Disposition", "attachment; filename="+fileName+".zip")
-	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", "attachment; filename="+fileName+".tar")
+	w.Header().Set("Content-Type", "application/octet-stream")
 
-	path := "/Users/xxx/yyy.zip"
+	path := "/Users/xxx/yyy.tar"
 	http.ServeFile(w, req, path)
 }
