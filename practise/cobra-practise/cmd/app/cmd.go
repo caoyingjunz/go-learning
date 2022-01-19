@@ -3,16 +3,22 @@ package app
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"github.com/spf13/pflag"
+
+	"k8s.io/client-go/util/homedir"
 	cliflag "k8s.io/component-base/cli/flag"
-	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	"k8s.io/kubectl/pkg/util/i18n"
 	"k8s.io/kubectl/pkg/util/templates"
 
 	"go-learning/practise/cobra-practise/cmd/apply"
 	"go-learning/practise/cobra-practise/cmd/plugin"
+)
+
+var (
+	defaultKubeConfig = filepath.Join(homedir.HomeDir(), ".kube", "config")
 )
 
 // PluginHandler is capable of parsing command line arguments
@@ -29,12 +35,62 @@ type PluginHandler interface {
 	// to relay to the executable.
 	Execute(executablePath string, cmdArgs, environment []string) error
 }
+
+// PConfigFlags composes the set of values necessary
+// for obtaining pixiu client config
+type PConfigFlags struct {
+	Kubeconfig *string
+	Name       *string
+	Namespace  *string
+
+	usePersistentConfig bool
+	//TODO
+}
+
+// NewPConfigFlags returns ConfigFlags with default values set
+func NewPConfigFlags(usePersistentConfig bool) *PConfigFlags {
+	return &PConfigFlags{
+		Kubeconfig:          stringptr(defaultKubeConfig),
+		Name:                stringptr(""),
+		Namespace:           stringptr(""),
+		usePersistentConfig: usePersistentConfig,
+	}
+}
+
+func (f *PConfigFlags) WithDefaultNamespaceFlag() *PConfigFlags {
+	f.Namespace = stringptr("default")
+	return f
+}
+
+func stringptr(val string) *string {
+	return &val
+}
+
+const (
+	flagName      = "name"
+	flagNamespace = "namespace"
+)
+
+func (f *PConfigFlags) AddFlags(flags *pflag.FlagSet) {
+	if f.Kubeconfig != nil {
+		flags.StringVar(f.Kubeconfig, "kubeconfig", *f.Kubeconfig, "Path to the kubeconfig file to use for CLI requests.")
+	}
+	if f.Name != nil {
+		flags.StringVar(f.Name, flagName, *f.Name, "Name to impersonate for the operation")
+	}
+
+	if f.Namespace != nil {
+		flags.StringVar(f.Namespace, flagNamespace, *f.Namespace, "Namespace")
+	}
+
+	// TODO
+}
+
 type PixiuOptions struct {
 	PluginHandler PluginHandler
 	Arguments     []string
-	ConfigFlags   *genericclioptions.ConfigFlags
 
-	genericclioptions.IOStreams
+	PConfigFlags *PConfigFlags
 }
 
 // DefaultPluginHandler implements PluginHandler
@@ -61,8 +117,7 @@ func NewDefaultPixiuCommand() *cobra.Command {
 	return NewDefaultPixiuctlCommandWithArgs(PixiuOptions{
 		PluginHandler: NewDefaultPluginHandler(plugin.ValidPluginFilenamePrefixes),
 		Arguments:     os.Args,
-		ConfigFlags:   genericclioptions.NewConfigFlags(true).WithDeprecatedPasswordFlag(),
-		IOStreams:     genericclioptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
+		PConfigFlags:  NewPConfigFlags(true).WithDefaultNamespaceFlag(),
 	})
 }
 
@@ -71,6 +126,7 @@ func NewDefaultPixiuctlCommandWithArgs(o PixiuOptions) *cobra.Command {
 	cmd := NewPixiuCommand(o)
 
 	if o.PluginHandler == nil {
+		// TODO: 后续考虑加入plugin的实现
 		return cmd
 	}
 
@@ -106,11 +162,8 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 	// 通过 addFlag 追加
 	flags.BoolVar(&warningsAsErrors, "warnings-as-errors", warningsAsErrors, "Treat warnings received from the server as errors and exit with a non-zero exit code")
 
-	pixiuConfigFlags := o.ConfigFlags
-	pixiuConfigFlags.AddFlags(flags)
-	matchVersionPixiuConfigFlags := cmdutil.NewMatchVersionFlags(pixiuConfigFlags)
-
-	f := cmdutil.NewFactory(matchVersionPixiuConfigFlags)
+	configFlags := o.PConfigFlags
+	configFlags.AddFlags(flags)
 
 	cmdGroups := templates.CommandGroups{
 		{
@@ -120,7 +173,7 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 		{
 			Message: "Deploy Commands:",
 			Commands: []*cobra.Command{
-				apply.NewCmdApply("pixiuctl", f, o.IOStreams),
+				apply.NewCmdApply("pixiuctl"),
 			},
 		},
 	}
