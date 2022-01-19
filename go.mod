@@ -20,6 +20,7 @@ require (
 	github.com/pkg/sftp v1.13.4
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
+	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.8.1
 	go.uber.org/zap v1.19.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
@@ -30,10 +31,13 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.23.0
 	k8s.io/apimachinery v0.23.0
+	k8s.io/cli-runtime v0.0.0
 	k8s.io/client-go v0.23.0
+	k8s.io/component-base v0.0.0
 	k8s.io/controller-manager v0.0.0
 	k8s.io/klog v0.4.0
 	k8s.io/klog/v2 v2.30.0
+	k8s.io/kubectl v0.0.0
 	k8s.io/kubernetes v1.23.0
 	k8s.io/metrics v0.23.0
 )
