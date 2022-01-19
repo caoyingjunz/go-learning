@@ -36,9 +36,9 @@ type PluginHandler interface {
 	Execute(executablePath string, cmdArgs, environment []string) error
 }
 
-// PConfigFlags composes the set of values necessary
+// ConfigFlags composes the set of values necessary
 // for obtaining pixiu client config
-type PConfigFlags struct {
+type ConfigFlags struct {
 	Kubeconfig *string
 	Name       *string
 	Namespace  *string
@@ -47,9 +47,9 @@ type PConfigFlags struct {
 	//TODO
 }
 
-// NewPConfigFlags returns ConfigFlags with default values set
-func NewPConfigFlags(usePersistentConfig bool) *PConfigFlags {
-	return &PConfigFlags{
+// NewConfigFlags returns ConfigFlags with default values set
+func NewConfigFlags(usePersistentConfig bool) *ConfigFlags {
+	return &ConfigFlags{
 		Kubeconfig:          stringptr(defaultKubeConfig),
 		Name:                stringptr(""),
 		Namespace:           stringptr(""),
@@ -57,7 +57,7 @@ func NewPConfigFlags(usePersistentConfig bool) *PConfigFlags {
 	}
 }
 
-func (f *PConfigFlags) WithDefaultNamespaceFlag() *PConfigFlags {
+func (f *ConfigFlags) WithDefaultNamespaceFlag() *ConfigFlags {
 	f.Namespace = stringptr("default")
 	return f
 }
@@ -71,7 +71,7 @@ const (
 	flagNamespace = "namespace"
 )
 
-func (f *PConfigFlags) AddFlags(flags *pflag.FlagSet) {
+func (f *ConfigFlags) AddFlags(flags *pflag.FlagSet) {
 	if f.Kubeconfig != nil {
 		flags.StringVar(f.Kubeconfig, "kubeconfig", *f.Kubeconfig, "Path to the kubeconfig file to use for CLI requests.")
 	}
@@ -90,7 +90,7 @@ type PixiuOptions struct {
 	PluginHandler PluginHandler
 	Arguments     []string
 
-	PConfigFlags *PConfigFlags
+	ConfigFlags *ConfigFlags
 }
 
 // DefaultPluginHandler implements PluginHandler
@@ -117,7 +117,7 @@ func NewDefaultPixiuCommand() *cobra.Command {
 	return NewDefaultPixiuctlCommandWithArgs(PixiuOptions{
 		PluginHandler: NewDefaultPluginHandler(plugin.ValidPluginFilenamePrefixes),
 		Arguments:     os.Args,
-		PConfigFlags:  NewPConfigFlags(true).WithDefaultNamespaceFlag(),
+		ConfigFlags:   NewConfigFlags(true).WithDefaultNamespaceFlag(),
 	})
 }
 
@@ -162,7 +162,7 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 	// 通过 addFlag 追加
 	flags.BoolVar(&warningsAsErrors, "warnings-as-errors", warningsAsErrors, "Treat warnings received from the server as errors and exit with a non-zero exit code")
 
-	configFlags := o.PConfigFlags
+	configFlags := o.ConfigFlags
 	configFlags.AddFlags(flags)
 
 	cmdGroups := templates.CommandGroups{
