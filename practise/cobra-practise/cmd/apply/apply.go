@@ -2,9 +2,9 @@ package apply
 
 import (
 	"fmt"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
 
 	"github.com/spf13/cobra"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	"k8s.io/kubectl/pkg/util/i18n"
 	"k8s.io/kubectl/pkg/util/templates"
@@ -26,8 +26,10 @@ var (
 )
 
 // NewCmdApply create the `apply` command
-func NewCmdApply(baseName string) *cobra.Command {
-	flags := NewApplyFlags()
+func NewCmdApply(ioStreams genericclioptions.IOStreams) *cobra.Command {
+	//flags := NewApplyFlags()
+
+	o := NewApplyOptions(ioStreams)
 
 	cmd := &cobra.Command{
 		Use:                   "apply (-f FILENAME | -k DIRECTORY)",
@@ -36,25 +38,13 @@ func NewCmdApply(baseName string) *cobra.Command {
 		Long:                  applyLong,
 		Example:               applyExample,
 		Run: func(cmd *cobra.Command, args []string) {
-			o, err := flags.ToOptions(cmd, baseName, args)
-			cmdutil.CheckErr(err)
+			cmdutil.CheckErr(o.Complete(cmd, args))
+			cmdutil.CheckErr(o.Validate(cmd))
 			cmdutil.CheckErr(o.Run())
 		},
 	}
 
 	return cmd
-}
-
-// ApplyFlags directly reflect the information that CLI is gathering via flags.  They will be converted to Options, which
-// reflect the runtime requirements for the command.  This structure reduces the transformation to wiring and makes
-// the logic itself easy to unit test
-type ApplyFlags struct {
-	genericclioptions.IOStreams
-}
-
-// NewApplyFlags returns a default ApplyFlags
-func NewApplyFlags() *ApplyFlags {
-	return &ApplyFlags{}
 }
 
 // ApplyOptions defines flags and other configuration parameters for the `apply` command
@@ -67,30 +57,36 @@ type ApplyOptions struct {
 	genericclioptions.IOStreams
 }
 
-// ToOptions converts from CLI inputs to runtime inputs
-func (flags *ApplyFlags) ToOptions(cmd *cobra.Command, baseName string, args []string) (*ApplyOptions, error) {
-	kubeConfig, err := cmd.Flags().GetString("kubeconfig")
-	if err != nil {
-		return nil, err
+func NewApplyOptions(ioStreams genericclioptions.IOStreams) *ApplyOptions {
+	return &ApplyOptions{
+		IOStreams: ioStreams,
 	}
-	namespace, err := cmd.Flags().GetString("namespace")
+}
+
+func (o *ApplyOptions) Complete(cmd *cobra.Command, args []string) error {
+	var err error
+	o.Kubeconfig, err = cmd.Flags().GetString("kubeconfig")
 	if err != nil {
-		return nil, err
+		return err
 	}
-	name, err := cmd.Flags().GetString("name")
+	o.Namespace, err = cmd.Flags().GetString("namespace")
 	if err != nil {
-		return nil, err
+		return err
+	}
+	o.Name, err = cmd.Flags().GetString("name")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Just a demo
+func (o *ApplyOptions) Validate(cmd *cobra.Command) error {
+	if o.Namespace == "" {
+		return fmt.Errorf("invalied namespace")
 	}
 
-	o := &ApplyOptions{
-		Kubeconfig: kubeConfig,
-		Namespace:  namespace,
-		Name:       name,
-
-		IOStreams: flags.IOStreams,
-	}
-
-	return o, nil
+	return nil
 }
 
 // Run executes the `apply` command.

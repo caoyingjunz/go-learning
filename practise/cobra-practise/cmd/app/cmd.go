@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/util/homedir"
 	cliflag "k8s.io/component-base/cli/flag"
 	"k8s.io/kubectl/pkg/util/i18n"
@@ -15,6 +16,7 @@ import (
 
 	"go-learning/practise/cobra-practise/cmd/apply"
 	"go-learning/practise/cobra-practise/cmd/plugin"
+	pixiutemplates "go-learning/practise/cobra-practise/cmd/templates"
 )
 
 var (
@@ -50,9 +52,10 @@ type ConfigFlags struct {
 // NewConfigFlags returns ConfigFlags with default values set
 func NewConfigFlags(usePersistentConfig bool) *ConfigFlags {
 	return &ConfigFlags{
-		Kubeconfig:          stringptr(defaultKubeConfig),
-		Name:                stringptr(""),
-		Namespace:           stringptr(""),
+		Kubeconfig: stringptr(defaultKubeConfig),
+		Name:       stringptr(""),
+		Namespace:  stringptr(""),
+
 		usePersistentConfig: usePersistentConfig,
 	}
 }
@@ -78,19 +81,19 @@ func (f *ConfigFlags) AddFlags(flags *pflag.FlagSet) {
 	if f.Name != nil {
 		flags.StringVar(f.Name, flagName, *f.Name, "Name to impersonate for the operation")
 	}
-
 	if f.Namespace != nil {
 		flags.StringVar(f.Namespace, flagNamespace, *f.Namespace, "Namespace")
 	}
 
-	// TODO
+	// TODO: 其他的自定义配置
 }
 
 type PixiuOptions struct {
 	PluginHandler PluginHandler
 	Arguments     []string
+	ConfigFlags   *ConfigFlags
 
-	ConfigFlags *ConfigFlags
+	genericclioptions.IOStreams
 }
 
 // DefaultPluginHandler implements PluginHandler
@@ -118,6 +121,7 @@ func NewDefaultPixiuCommand() *cobra.Command {
 		PluginHandler: NewDefaultPluginHandler(plugin.ValidPluginFilenamePrefixes),
 		Arguments:     os.Args,
 		ConfigFlags:   NewConfigFlags(true).WithDefaultNamespaceFlag(),
+		IOStreams:     genericclioptions.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr},
 	})
 }
 
@@ -152,20 +156,25 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
       Find more information at:
             https://github.com/caoyingjunz/go-learning`),
 		Run: runHelp,
-		//TODO： 执行前后钩子
+		PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
+			if warningsAsErrors {
+				fmt.Println("demo warningsAsErrors")
+			}
+			return nil
+		},
 	}
 
 	cmds.SetGlobalNormalizationFunc(cliflag.WarnWordSepNormalizeFunc)
 
+	// 通过 addFlag 追加
 	flags := cmds.PersistentFlags()
 
-	// 通过 addFlag 追加
 	flags.BoolVar(&warningsAsErrors, "warnings-as-errors", warningsAsErrors, "Treat warnings received from the server as errors and exit with a non-zero exit code")
 
 	configFlags := o.ConfigFlags
-	configFlags.AddFlags(flags)
+	configFlags.AddFlags(flags) // TODO
 
-	cmdGroups := templates.CommandGroups{
+	groups := templates.CommandGroups{
 		{
 			Message:  "Basic Commands (Beginner):",
 			Commands: []*cobra.Command{},
@@ -173,17 +182,23 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 		{
 			Message: "Deploy Commands:",
 			Commands: []*cobra.Command{
-				apply.NewCmdApply("pixiuctl"),
+				apply.NewCmdApply(o.IOStreams),
 			},
 		},
 	}
 
-	cmdGroups.Add(cmds)
+	groups.Add(cmds)
 
+	filters := []string{"options"}
+
+	pixiutemplates.ActsAsRootCommand(cmds, filters, groups...)
+
+	// Stop warning about normalization of flags. That makes it possible to
+	// add the klog flags later.
+	cmds.SetGlobalNormalizationFunc(cliflag.WordSepNormalizeFunc)
 	return cmds
 }
 
 func runHelp(cmd *cobra.Command, args []string) {
-	fmt.Println("command help")
-	//cmd.Help()
+	cmd.Help()
 }
