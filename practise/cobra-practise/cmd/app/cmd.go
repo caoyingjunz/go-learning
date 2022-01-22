@@ -15,8 +15,9 @@ import (
 	"k8s.io/kubectl/pkg/util/templates"
 
 	"go-learning/practise/cobra-practise/cmd/apply"
+	"go-learning/practise/cobra-practise/cmd/create"
 	"go-learning/practise/cobra-practise/cmd/plugin"
-	pixiutemplates "go-learning/practise/cobra-practise/cmd/templates"
+	pcmdutil "go-learning/practise/cobra-practise/cmd/util"
 )
 
 var (
@@ -174,15 +175,19 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 	configFlags := o.ConfigFlags
 	configFlags.AddFlags(flags) // TODO
 
+	f := pcmdutil.NewFactory(*configFlags.Kubeconfig)
+
 	groups := templates.CommandGroups{
 		{
-			Message:  "Basic Commands (Beginner):",
-			Commands: []*cobra.Command{},
+			Message: "Basic Commands (Beginner):",
+			Commands: []*cobra.Command{
+				create.NewCmdCreate(f, o.IOStreams),
+			},
 		},
 		{
-			Message: "Deploy Commands:",
+			Message: "Advanced Commands:",
 			Commands: []*cobra.Command{
-				apply.NewCmdApply(o.IOStreams),
+				apply.NewCmdApply(f, o.IOStreams),
 			},
 		},
 	}
@@ -190,8 +195,7 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 	groups.Add(cmds)
 
 	filters := []string{"options"}
-
-	pixiutemplates.ActsAsRootCommand(cmds, filters, groups...)
+	templates.ActsAsRootCommand(cmds, filters, groups...)
 
 	// Stop warning about normalization of flags. That makes it possible to
 	// add the klog flags later.

@@ -8,7 +8,7 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 
 - kubernetes 功能增强 [Pixiu(貔貅)](https://github.com/caoyingjunz/pixiu)
 - 快速部署 [kubez-ansible](https://github.com/caoyingjunz/kubez-ansible)
-- workload 自动扩缩容 [kubez-autoscaler](https://github.com/caoyingjunz/kubez-autoscaler)
+- workload 自动扩缩容 [piuxiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
 
 ## Kubernetes
 - [kube-proxy 源码分析](./doc/kubernetes/kube-proxy.md)
@@ -20,6 +20,9 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 
 ## Examples
 - [Examples](./examples/README.md) 提供丰富的 `kubernetes` 用法举例.
+- [pixiuctl](https://github.com/caoyingjunz/go-learning/tree/master/practise/cobra-practise) 基于 [cobra](https://github.com/spf13/cobra) 实现命令行
+  - subcommand
+  - plugin
 
 ## TODO
 - scheduler 代码分析

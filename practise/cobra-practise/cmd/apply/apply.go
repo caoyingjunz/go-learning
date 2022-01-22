@@ -8,6 +8,8 @@ import (
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	"k8s.io/kubectl/pkg/util/i18n"
 	"k8s.io/kubectl/pkg/util/templates"
+
+	pcmdutil "go-learning/practise/cobra-practise/cmd/util"
 )
 
 var (
@@ -26,15 +28,13 @@ var (
 )
 
 // NewCmdApply create the `apply` command
-func NewCmdApply(ioStreams genericclioptions.IOStreams) *cobra.Command {
-	//flags := NewApplyFlags()
-
+func NewCmdApply(f pcmdutil.Factory, ioStreams genericclioptions.IOStreams) *cobra.Command {
 	o := NewApplyOptions(ioStreams)
 
 	cmd := &cobra.Command{
 		Use:                   "apply (-f FILENAME | -k DIRECTORY)",
 		DisableFlagsInUseLine: true,
-		Short:                 i18n.T("Apply a configuration to a resource by file name or stdin"),
+		Short:                 i18n.T("Apply a configuration to a pixiu resource by file name or stdin"),
 		Long:                  applyLong,
 		Example:               applyExample,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -43,6 +43,9 @@ func NewCmdApply(ioStreams genericclioptions.IOStreams) *cobra.Command {
 			cmdutil.CheckErr(o.Run())
 		},
 	}
+
+	// 绑定
+	o.AddFlags(cmd)
 
 	return cmd
 }
@@ -63,28 +66,23 @@ func NewApplyOptions(ioStreams genericclioptions.IOStreams) *ApplyOptions {
 	}
 }
 
+func (o *ApplyOptions) AddFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVar(&o.Kubeconfig, "kubeconfig", o.Kubeconfig, "Path to the kubeconfig file to use for CLI requests.")
+	cmd.Flags().StringVar(&o.Name, "name", o.Name, "Name to impersonate for the operation")
+	cmd.Flags().StringVar(&o.Namespace, "namespace", o.Namespace, "Namespace to impersonate for the operation")
+}
+
 func (o *ApplyOptions) Complete(cmd *cobra.Command, args []string) error {
-	var err error
-	o.Kubeconfig, err = cmd.Flags().GetString("kubeconfig")
-	if err != nil {
-		return err
-	}
-	o.Namespace, err = cmd.Flags().GetString("namespace")
-	if err != nil {
-		return err
-	}
-	o.Name, err = cmd.Flags().GetString("name")
-	if err != nil {
-		return err
-	}
+	fmt.Println("test apply complete name:", o.Name)
+
 	return nil
 }
 
 // Just a demo
 func (o *ApplyOptions) Validate(cmd *cobra.Command) error {
-	if o.Namespace == "" {
-		return fmt.Errorf("invalied namespace")
-	}
+	//if o.Namespace == "" {
+	//	return fmt.Errorf("invalied namespace")
+	//}
 
 	return nil
 }
