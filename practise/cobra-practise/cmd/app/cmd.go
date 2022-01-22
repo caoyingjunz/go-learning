@@ -173,7 +173,7 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 	flags.BoolVar(&warningsAsErrors, "warnings-as-errors", warningsAsErrors, "Treat warnings received from the server as errors and exit with a non-zero exit code")
 
 	configFlags := o.ConfigFlags
-	configFlags.AddFlags(flags)
+	configFlags.AddFlags(flags) // TODO
 
 	f := pcmdutil.NewFactory(*configFlags.Kubeconfig)
 

@@ -85,6 +85,33 @@ func (o *ApplyOptions) Validate(cmd *cobra.Command) error {
 	//}
 
 	return nil
+	}
+}
+
+func (o *ApplyOptions) Complete(cmd *cobra.Command, args []string) error {
+	var err error
+	o.Kubeconfig, err = cmd.Flags().GetString("kubeconfig")
+	if err != nil {
+		return err
+	}
+	o.Namespace, err = cmd.Flags().GetString("namespace")
+	if err != nil {
+		return err
+	}
+	o.Name, err = cmd.Flags().GetString("name")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Just a demo
+func (o *ApplyOptions) Validate(cmd *cobra.Command) error {
+	if o.Namespace == "" {
+		return fmt.Errorf("invalied namespace")
+	}
+
+	return nil
 }
 
 // Run executes the `apply` command.
