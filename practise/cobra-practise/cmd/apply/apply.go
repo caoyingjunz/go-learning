@@ -8,6 +8,8 @@ import (
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	"k8s.io/kubectl/pkg/util/i18n"
 	"k8s.io/kubectl/pkg/util/templates"
+
+	pcmdutil "go-learning/practise/cobra-practise/cmd/util"
 )
 
 var (
@@ -26,9 +28,7 @@ var (
 )
 
 // NewCmdApply create the `apply` command
-func NewCmdApply(ioStreams genericclioptions.IOStreams) *cobra.Command {
-	//flags := NewApplyFlags()
-
+func NewCmdApply(f pcmdutil.Factory, ioStreams genericclioptions.IOStreams) *cobra.Command {
 	o := NewApplyOptions(ioStreams)
 
 	cmd := &cobra.Command{
@@ -40,9 +40,12 @@ func NewCmdApply(ioStreams genericclioptions.IOStreams) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.Complete(cmd, args))
 			cmdutil.CheckErr(o.Validate(cmd))
-			cmdutil.CheckErr(o.Run())
+			cmdutil.CheckErr(o.RunApply())
 		},
 	}
+
+	// 绑定
+	o.AddFlags(cmd)
 
 	return cmd
 }
@@ -63,34 +66,29 @@ func NewApplyOptions(ioStreams genericclioptions.IOStreams) *ApplyOptions {
 	}
 }
 
+func (o *ApplyOptions) AddFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVar(&o.Kubeconfig, "kubeconfig", o.Kubeconfig, "Path to the kubeconfig file to use for CLI requests.")
+	cmd.Flags().StringVar(&o.Name, "name", o.Name, "Name to impersonate for the operation")
+	cmd.Flags().StringVar(&o.Namespace, "namespace", o.Namespace, "Namespace to impersonate for the operation")
+}
+
 func (o *ApplyOptions) Complete(cmd *cobra.Command, args []string) error {
-	var err error
-	o.Kubeconfig, err = cmd.Flags().GetString("kubeconfig")
-	if err != nil {
-		return err
-	}
-	o.Namespace, err = cmd.Flags().GetString("namespace")
-	if err != nil {
-		return err
-	}
-	o.Name, err = cmd.Flags().GetString("name")
-	if err != nil {
-		return err
-	}
+	fmt.Println("test apply complete name:", o.Name)
+
 	return nil
 }
 
 // Just a demo
 func (o *ApplyOptions) Validate(cmd *cobra.Command) error {
-	if o.Namespace == "" {
-		return fmt.Errorf("invalied namespace")
-	}
+	//if o.Namespace == "" {
+	//	return fmt.Errorf("invalied namespace")
+	//}
 
 	return nil
 }
 
 // Run executes the `apply` command.
-func (o *ApplyOptions) Run() error {
+func (o *ApplyOptions) RunApply() error {
 	// TODO: run with options
 	fmt.Println(fmt.Sprintf("run apply command with Kubeconfig: %s, Namespace: %s, Name: %s", o.Kubeconfig, o.Namespace, o.Name))
 	return nil
