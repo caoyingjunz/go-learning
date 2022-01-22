@@ -60,7 +60,7 @@ func NewCmdCreate(f pcmdutil.Factory, ioStreams genericclioptions.IOStreams) *co
 	cmd := &cobra.Command{
 		Use:                   "create -f FILENAME",
 		DisableFlagsInUseLine: true,
-		Short:                 i18n.T("Create a resource from a file or from stdin"),
+		Short:                 i18n.T("Create a pixiu resource from a file or stdin"),
 		Long:                  createLong,
 		Example:               createExample,
 		Run: func(cmd *cobra.Command, args []string) {

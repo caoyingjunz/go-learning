@@ -34,13 +34,13 @@ func NewCmdApply(f pcmdutil.Factory, ioStreams genericclioptions.IOStreams) *cob
 	cmd := &cobra.Command{
 		Use:                   "apply (-f FILENAME | -k DIRECTORY)",
 		DisableFlagsInUseLine: true,
-		Short:                 i18n.T("Apply a configuration to a resource by file name or stdin"),
+		Short:                 i18n.T("Apply a configuration to a pixiu resource by file name or stdin"),
 		Long:                  applyLong,
 		Example:               applyExample,
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.Complete(cmd, args))
 			cmdutil.CheckErr(o.Validate(cmd))
-			cmdutil.CheckErr(o.RunApply())
+			cmdutil.CheckErr(o.Run())
 		},
 	}
 
@@ -85,37 +85,10 @@ func (o *ApplyOptions) Validate(cmd *cobra.Command) error {
 	//}
 
 	return nil
-	}
-}
-
-func (o *ApplyOptions) Complete(cmd *cobra.Command, args []string) error {
-	var err error
-	o.Kubeconfig, err = cmd.Flags().GetString("kubeconfig")
-	if err != nil {
-		return err
-	}
-	o.Namespace, err = cmd.Flags().GetString("namespace")
-	if err != nil {
-		return err
-	}
-	o.Name, err = cmd.Flags().GetString("name")
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// Just a demo
-func (o *ApplyOptions) Validate(cmd *cobra.Command) error {
-	if o.Namespace == "" {
-		return fmt.Errorf("invalied namespace")
-	}
-
-	return nil
 }
 
 // Run executes the `apply` command.
-func (o *ApplyOptions) RunApply() error {
+func (o *ApplyOptions) Run() error {
 	// TODO: run with options
 	fmt.Println(fmt.Sprintf("run apply command with Kubeconfig: %s, Namespace: %s, Name: %s", o.Kubeconfig, o.Namespace, o.Name))
 	return nil
