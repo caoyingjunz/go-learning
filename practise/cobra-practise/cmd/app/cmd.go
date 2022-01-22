@@ -17,7 +17,6 @@ import (
 	"go-learning/practise/cobra-practise/cmd/apply"
 	"go-learning/practise/cobra-practise/cmd/create"
 	"go-learning/practise/cobra-practise/cmd/plugin"
-	pixiutemplates "go-learning/practise/cobra-practise/cmd/templates"
 	pcmdutil "go-learning/practise/cobra-practise/cmd/util"
 )
 
@@ -196,7 +195,7 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 	groups.Add(cmds)
 
 	filters := []string{"options"}
-	pixiutemplates.ActsAsRootCommand(cmds, filters, groups...)
+	templates.ActsAsRootCommand(cmds, filters, groups...)
 
 	// Stop warning about normalization of flags. That makes it possible to
 	// add the klog flags later.
