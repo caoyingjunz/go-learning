@@ -16,7 +16,7 @@ var (
 
 	serviceClusterIPExample = templates.Examples(i18n.T(`
     # Create a new ClusterIP service named my-cs (in headless mode)
-    kubectl create service clusterip my-cs --clusterip="None"`))
+    pixiuctl create service clusterip my-cs --clusterip="None"`))
 )
 
 // NewCmdCreateService is a macro command to create a new service
