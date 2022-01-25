@@ -3,7 +3,11 @@ package app
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
+	"syscall"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -108,13 +112,39 @@ func NewDefaultPluginHandler(validPrefixes []string) *DefaultPluginHandler {
 	}
 }
 
+// 通过 exec 内置方法，去搜索是否存在
+// Lookup implements PluginHandler
 func (h *DefaultPluginHandler) Lookup(filename string) (string, bool) {
-	// TODO
+	for _, prefix := range h.ValidPrefixes {
+		path, err := exec.LookPath(fmt.Sprintf("%s-%s", prefix, filename))
+		if err != nil || len(path) == 0 {
+			continue
+		}
+		return path, true
+	}
+
 	return "", false
 }
 
+// Execute implements PluginHandler
 func (h *DefaultPluginHandler) Execute(executablePath string, cmdArgs, environment []string) error {
-	return nil
+	// Windows does not support exec syscall.
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command(executablePath, cmdArgs...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+		cmd.Env = environment
+		err := cmd.Run()
+		if err == nil {
+			os.Exit(0)
+		}
+		return err
+	}
+
+	// invoke cmd binary relaying the environment and args given
+	// append executablePath to cmdArgs, as execve will make first argument the "binary name".
+	return syscall.Exec(executablePath, append([]string{executablePath}, cmdArgs...), environment)
 }
 
 func NewDefaultPixiuCommand() *cobra.Command {
@@ -131,15 +161,72 @@ func NewDefaultPixiuctlCommandWithArgs(o PixiuOptions) *cobra.Command {
 	cmd := NewPixiuCommand(o)
 
 	if o.PluginHandler == nil {
-		// TODO: 后续考虑加入plugin的实现
 		return cmd
 	}
 
-	// 预留命令行插件，暂时不做实现
 	if len(o.Arguments) > 1 {
+		cmdPathPieces := o.Arguments[1:]
+		if _, _, err := cmd.Find(cmdPathPieces); err != nil {
+			var cmdName string // 第一个不是 flag 的参数
+			for _, arg := range cmdPathPieces {
+				if !strings.HasPrefix(arg, "-") { // - 或者 --
+					cmdName = arg
+					break
+				}
+			}
+
+			switch cmdName {
+			case "help": // 忽略
+			// 不去搜索 plugin
+			default:
+				if err = HandlePluginCommand(o.PluginHandler, cmdPathPieces); err != nil {
+					fmt.Fprintf(o.IOStreams.ErrOut, "Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
+		}
 	}
 
 	return cmd
+}
+
+func HandlePluginCommand(pluginHandler PluginHandler, cmdArgs []string) error {
+	var remainingArgs []string // all "non-flag" arguments
+	for _, arg := range cmdArgs {
+		if strings.HasPrefix(arg, "-") {
+			break
+		}
+		remainingArgs = append(remainingArgs, strings.Replace(arg, "-", "_", -1))
+	}
+
+	if len(remainingArgs) == 0 {
+		// the length of cmdArgs is at least 1
+		return fmt.Errorf("flags cannot be placed before plugin name: %s", cmdArgs[0])
+	}
+
+	foundBinaryPath := ""
+	// attempt to find binary, starting at longest possible name with given cmdArgs
+	for len(remainingArgs) > 0 {
+		path, found := pluginHandler.Lookup(strings.Join(remainingArgs, "-"))
+		if !found {
+			remainingArgs = remainingArgs[:len(remainingArgs)-1]
+			continue
+		}
+
+		foundBinaryPath = path
+		break
+	}
+
+	if len(foundBinaryPath) == 0 {
+		return nil
+	}
+
+	// invoke cmd binary relaying the current environment and args given
+	if err := pluginHandler.Execute(foundBinaryPath, cmdArgs[len(remainingArgs):], os.Environ()); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // NewPixiuCommand 创建 `pixiuctl` 命令行和它的子命令
@@ -196,6 +283,8 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 
 	filters := []string{"options"}
 	templates.ActsAsRootCommand(cmds, filters, groups...)
+
+	cmds.AddCommand(plugin.NewCmdPlugin(o.IOStreams))
 
 	// Stop warning about normalization of flags. That makes it possible to
 	// add the klog flags later.
