@@ -145,7 +145,7 @@ func (o *PluginListOptions) Run() error {
 	}
 
 	if !pluginsFound {
-		pluginErrors = append(pluginErrors, fmt.Errorf("error: unable to find any kubectl plugins in your PATH"))
+		pluginErrors = append(pluginErrors, fmt.Errorf("error: unable to find any pixiuctl plugins in your PATH"))
 	}
 
 	if pluginWarnings > 0 {
@@ -178,7 +178,7 @@ func (v *CommandOverrideVerifier) Verify(path string) []error {
 
 	errors := []error{}
 	if isExec, err := isExecutable(path); err == nil && !isExec {
-		errors = append(errors, fmt.Errorf("warning: %s identified as a kubectl plugin, but it is not executable", path))
+		errors = append(errors, fmt.Errorf("warning: %s identified as a pixiuctl plugin, but it is not executable", path))
 	} else if err != nil {
 		errors = append(errors, fmt.Errorf("error: unable to identify %s as an executable file: %v", path, err))
 	}
