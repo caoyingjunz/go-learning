@@ -284,6 +284,8 @@ func NewPixiuCommand(o PixiuOptions) *cobra.Command {
 	filters := []string{"options"}
 	templates.ActsAsRootCommand(cmds, filters, groups...)
 
+	cmds.AddCommand(plugin.NewCmdPlugin(o.IOStreams))
+
 	// Stop warning about normalization of flags. That makes it possible to
 	// add the klog flags later.
 	cmds.SetGlobalNormalizationFunc(cliflag.WordSepNormalizeFunc)
