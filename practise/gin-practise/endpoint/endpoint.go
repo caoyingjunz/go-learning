@@ -130,3 +130,11 @@ func GetOptimise(c *gin.Context) {
 		return
 	}
 }
+
+func Download(c *gin.Context) {
+	filename := c.Query("filename")
+
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Disposition", "attachment; filename="+filename+".tar")
+	c.File("/Users/xxx/yyy.tar")
+}

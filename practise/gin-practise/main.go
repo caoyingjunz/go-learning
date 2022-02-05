@@ -1,11 +1,10 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"go-learning/practise/gin-practise/endpoint"
 	"go-learning/practise/gin-practise/middleware"
+	"go-learning/practise/gin-practise/worker"
 )
 
 var https = `
@@ -26,19 +25,16 @@ POST http://127.0.0.1:8000/practise/queue/after?after=after
 GET http://127.0.0.1:8000/practise/pod?name=mariadb-0&namespace=kubez-sysns&key=config
 `
 
-func main() {
-	gin.SetMode(gin.ReleaseMode)
+type options struct {
+	addr   string
+	engine *gin.Engine
+	ws     worker.WorkerInterface
+}
 
-	r := gin.Default()
-	r.Use(middleware.LoggerToFile(), middleware.Auth)
+func (c *options) Register() {
+	c.engine.Use(middleware.LoggerToFile(), middleware.Auth)
 
-	stopCh := make(chan struct{})
-	defer close(stopCh)
-
-	go endpoint.WorkerSet.Run(2, stopCh)
-	//go endpoint.KubeEngine.Start(stopCh)
-
-	p := r.Group("/practise")
+	p := c.engine.Group("/practise")
 	{
 		p.GET("/get", endpoint.GetPractise)
 		p.POST("/post", endpoint.PostPractise)
@@ -46,39 +42,40 @@ func main() {
 		p.POST("/queue/after", endpoint.TestAfterQueue)
 		p.GET("/pod", endpoint.TestPod)
 		p.POST("/optimise", endpoint.TestOptimise)
-		p.GET("/download", Download)
+		p.GET("/download", endpoint.Download)
 	}
+}
 
-	http.HandleFunc("/download", DownloadFile)
+func (c *options) run() {
 	go func() {
-		err := http.ListenAndServe(":8080", nil)
-		if err != nil {
+		if err := c.engine.Run(c.addr); err != nil {
 			panic(err)
 		}
 	}()
 
-	_ = r.Run(":8000")
+	go func() {
+		stopCh := make(chan struct{})
+		defer close(stopCh)
+		c.ws.Run(2, stopCh)
+	}()
 }
 
-func Download(c *gin.Context) {
-	filename := c.Query("filename")
-
-	c.Header("Content-Type", "application/octet-stream")
-	c.Header("Content-Disposition", "attachment; filename="+filename+".tar")
-	c.File("/Users/xxx/yyy.tar")
-}
-
-func DownloadFile(w http.ResponseWriter, req *http.Request) {
-	fileName := req.URL.Query().Get("filename")
-	if len(fileName) == 0 {
-		w.WriteHeader(400)
-		w.Write([]byte("get file name failed"))
-		return
+func NewHttpServer(addr string) *options {
+	o := &options{
+		addr:   addr,
+		engine: gin.Default(),
+		ws:     endpoint.WorkerSet,
 	}
 
-	w.Header().Set("Content-Disposition", "attachment; filename="+fileName+".tar")
-	w.Header().Set("Content-Type", "application/octet-stream")
+	o.Register()
+	return o
+}
 
-	path := "/Users/xxx/yyy.tar"
-	http.ServeFile(w, req, path)
+func main() {
+	gin.SetMode(gin.ReleaseMode)
+
+	s := NewHttpServer(":8080")
+	s.run()
+
+	select {}
 }
