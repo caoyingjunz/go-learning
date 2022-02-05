@@ -1,10 +1,11 @@
 # kube-proxy 源码分析
 
-### mode: iptables
+### mode
+- iptables
 
 ### 启动 `kube-proxy`
 - 通过命令行启动 `kube-proxy`， 代码位置 `cmd/kube-proxy/proxy.go`
-	```
+	``` go
     package main
     ...
 
@@ -21,7 +22,7 @@
 	- kube-proxy 使用 [cobra](https://github.com/spf13/cobra) 来新建 `NewProxyCommand`, 完成配置的初始化和校验，以及程序的执行， cobra 的用法因为篇幅有限，需自行学习.
 
 - `cobra` 在调用 `command.Execute` 的时候会运行一个指定的 `ProxyServer`，并运行 `runLoop`.
-	```
+	``` go
 	func (o *Options) Run() error {
 		defer close(o.errCh)
         ...
@@ -36,13 +37,12 @@
 	```
 
 - 调用 `NewProxyServer` 新建一个 `ProxyServer`
-	```
+	``` go
 	func newProxyServer(
 		config *proxyconfigapi.KubeProxyConfiguration,
 		cleanupAndExit bool,
 		master string) (*ProxyServer, error) {
-		'''
-
+        ...
 		// 创建一个 iptables 的 utils
 		execer := exec.New()
 		...
@@ -110,13 +110,14 @@
 		}, nil
 	}
 	```
+
 	- `NewProxyServer` 方法会根据 `mode` 来判断所使用的 `Proxier`; 默认为 `iptables`.
         - `mode`:
 			- `iptables` 或者 `""(不填)`: `iptables Proxier`, 调用 `iptables.NewProxier`
 			- `ipvs`: `ipvs Proxier`, 调用 `ipvs.NewProxier`
 
 - 本文仅分析 `mode` 为 `iptables` 场景;  `NewProxyServer` 会调用 `iptables.NewProxier` 方法来初始化一个 `proxier`
-	```
+	``` go
 	func NewProxier(...) (*Proxier, error) {
 		// 设置 route_localnet = 1
 		if val, _ := sysctl.GetSysctl(sysctlRouteLocalnet); val != 1 {
@@ -184,7 +185,7 @@
         - 启动一个 `goroutine`，用于启动 `ipt.Monitor`
 
 - 完成 `Proxier` 创建之后, `Run` 方法会调用 `o.runLoop`，通过 goroutine 启动 `o.proxyServer.Run`, 代码位置 `cmd/kube-proxy/app/server.go`
-	```
+	``` go
 	func (o *Options) runLoop() error {
 		...
 		// 通过 goroutine 启动 proxy
@@ -197,7 +198,7 @@
 	```
 
 - `proxyServer.Run`
-	```
+	``` go
 	// This should never exit (unless CleanupAndExit is set).
 	func (s *ProxyServer) Run() error {
 		...
@@ -255,7 +256,7 @@
         - 启动 s.Proxier.SyncLoop 方法
 
 - 在 `s.Run` 中调用 `SyncLoop` 方法 进行 `Loop`
-	```
+	``` go
 	func (proxier *Proxier) SyncLoop() {
 		...
 		proxier.syncRunner.Loop(wait.NeverStop)
@@ -295,7 +296,7 @@
 
 - 循环运行核心方法 `syncProxyRules`, 完成 `kube-proxy` 职能. 代码位置 `pkg/proxy/iptables/proxier.go`.
 
-	```
+	``` go
 	func (proxier *Proxier) syncProxyRules() {
 		proxier.mu.Lock()
 		defer proxier.mu.Unlock()
