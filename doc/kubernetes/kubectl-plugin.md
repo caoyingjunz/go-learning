@@ -4,7 +4,8 @@
 
 `kubectl` 作为 [kubernetes](https://github.com/kubernetes/kubernetes) 官方提供的命令行工具，基于 [cobra](https://github.com/spf13/cobra) 实现，用于对 `kubernetes` 集群进行管理
 
-- 本文仅针对 `kubectl plugin` 的源码进行分析，如何使用请移步 [Extend kubectl with plugins](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/)
+- 本文仅针对 `kubectl plugin` 的源码进行分析
+- 使用请移步 [Extend kubectl with plugins](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/)
 - `cobra` demo 请移步 [pixiuctl](https://github.com/caoyingjunz/go-learning/tree/master/practise/cobra-practise)
 
 ### kubectl 版本
@@ -38,7 +39,7 @@ func NewDefaultKubectlCommand() *cobra.Command {
 ```
 
 `NewDefaultKubectlCommand` 主要作用：
-- 构造 `KubectlOptions` 结构体， 其中 `PluginHandler` 接口实现了 `Lookup` 和 `Execute` 方法，分别对 `plugin` 的查找和执行；先按下不表，用到时在详细分析
+- 构造 `KubectlOptions` 结构体， 其中 `PluginHandler` 接口实现了 `Lookup` 和 `Execute` 方法，分别对 `plugin` 的 `查找` 和 `执行`；先按下不表，用到时在详细分析
     ``` go
     type PluginHandler interface {
 	    Lookup(filename string) (string, bool)
@@ -87,7 +88,7 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
 
 `NewDefaultKubectlCommandWithArgs` 是 `kubectl` 的核心方法, 主要完成两件事:
 - 通过 `NewKubectlCommand` 方法完成原生 `kubectl` 命令行的构建
-  - [NewKubectlCommand](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/kubectl/pkg/cmd/cmd.go#L250) 会完成全部原生 `kubectl` 命令的构造；本文仅关注子命令 `plugins`
+  - [NewKubectlCommand](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/kubectl/pkg/cmd/cmd.go#L250) 会完成全部原生 `kubectl` 命令的构造；本文仅需关注子命令 `plugin`，用于获取 plugin 列表，后续展开分析。
 
       ``` go
       func NewKubectlCommand(o KubectlOptions) *cobra.Command {
@@ -106,10 +107,10 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
         return cmds
         }
      ```
-- 通过 `o.Arguments` (os.Args) 判断是否执行 `plugin`， 如果是则直接执行 `plugin`，否则返回 cmds。判断逻辑：
+- 通过 `o.Arguments` (原始os.Args) 判断是否执行 `plugin`， 如果 `是` 则直接执行 `plugin`，否则返回 cmds。判断逻辑：
   - 存在 `o.Arguments`
   - `command` 未在 cmds 中注册
-  - `command` 的名称为 `o.Arguments` 中的第一个字符串不是以 `-` 开头
+  - `command` 的名称不为空
   - `command` 的名称不是 `help`, `__complete`, `__completeNoDesc`
   ``` go
   if len(o.Arguments) > 1 {
@@ -140,4 +141,9 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
 - 如果最终判定为执行 `plugin` ，则调用 `HandlePluginCommand` 进行下一步处理
 
 ### 阶段性总结
-
+- 查看 plugin - plugin.NewCmdPlugin
+  ``` go
+  ```
+- 执行 plugin - HandlePluginCommand
+  ``` go
+  ```
