@@ -79,9 +79,10 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
 ```
 
 `NewDefaultKubectlCommandWithArgs` 是 `kubectl` 的核心方法, 主要完成两件事:
-- 通过 `NewKubectlCommand` 方法完成原生 `kubectl` 命令行的构建；[NewKubectlCommand](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/kubectl/pkg/cmd/cmd.go#L250)相对复杂，本文仅需关注子命令 `plugin`，用于获取 plugin 列表，后续展开分析。
-      ``` go
-      func NewKubectlCommand(o KubectlOptions) *cobra.Command {
+
+- 通过 `NewKubectlCommand` 方法完成原生 `kubectl` 命令行的构建；[NewKubectlCommand](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/kubectl/pkg/cmd/cmd.go#L250) 相对复杂，本文仅需关注子命令 `plugin`，kubectl 通过调用 plugin list 来获取列表
+   ``` go
+   func NewKubectlCommand(o KubectlOptions) *cobra.Command {
         ...
         cmds := &cobra.Command{
                 Use:   "kubectl",
@@ -95,8 +96,8 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
         cmds.AddCommand(plugin.NewCmdPlugin(o.IOStreams))
 
         return cmds
-        }
-     ```
+   }
+   ```
 - 通过 `o.Arguments` (原始os.Args) 判断是否执行 `plugin`， 如果 `是` 则直接执行 `plugin`，否则返回 cmds。判断逻辑：
   - 存在 `o.Arguments`
   - `command` 未在 cmds 中注册
@@ -262,12 +263,12 @@ func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
 - `pluginHandler` - 接口实现了 `Lookup` 和 `Execute` 方法
   - Lookup: 在 `PATH` 中查找满足条件的可执行文件
   - Execute: 调用 `syscall.Exec` 执行
-    ``` go
-    type PluginHandler interface {
-	    Lookup(filename string) (string, bool)
-        Execute(executablePath string, cmdArgs, environment []string) error
-    }
-    ```
+``` go
+type PluginHandler interface {
+	Lookup(filename string) (string, bool)
+    Execute(executablePath string, cmdArgs, environment []string) error
+}
+```
 - `cmdArgs` - 命令行参数
 
 ``` go
@@ -298,7 +299,7 @@ func HandlePluginCommand(pluginHandler PluginHandler, cmdArgs []string) error {
 - 从 `cmdArgs` 获取 `plugin` 的 `foundBinaryPath`
 - 调用 `pluginHandler.Lookup` 获取 `plugin` 的全路径
   ``` go
-    func (h *DefaultPluginHandler) Lookup(filename string) (string, bool) {
+  func (h *DefaultPluginHandler) Lookup(filename string) (string, bool) {
         for _, prefix := range h.ValidPrefixes {
             path, err := exec.LookPath(fmt.Sprintf("%s-%s", prefix, filename))
             if err != nil || len(path) == 0 {
@@ -308,7 +309,7 @@ func HandlePluginCommand(pluginHandler PluginHandler, cmdArgs []string) error {
         }
 
         return "", false
-    }
+  }
   ```
 - 调用 `pluginHandler.Execute` 执行
 ``` go
