@@ -21,7 +21,7 @@ func main() {
 	}
 }
 ```
-`kubectl` 的 `main` 函数非常简洁，新建 command 后直接执行；command 由核心函数 `NewDefaultKubectlCommand` 返回，让我们一起看看它的真面目。
+`kubectl` 的入口函数 `main` 非常简洁：新建 `command` 后直接执行；`command` 由核心函数 `NewDefaultKubectlCommand` 返回，后续会详细分析该函数。
 
 ### NewDefaultKubectlCommand
 ``` go
@@ -37,10 +37,9 @@ func NewDefaultKubectlCommand() *cobra.Command {
 ```
 
 `NewDefaultKubectlCommand` 主要作用：
-- 构造 `KubectlOptions` 结构体， 其中 `PluginHandler` 接口实现了 `Lookup` 和 `Execute` 方法，分别对 `plugin` 的 `查找` 和 `执行`；先按下不表，用到时在详细分析
-
+- 构造 `KubectlOptions` 结构体， 其中 `PluginHandler` 接口实现了 `Lookup` 和 `Execute` 方法，分别执行 `plugin` 的 `查找` 和 `执行` 操作；此处先按下不表，用到时在详细分析
 - 初始化 `Arguments`, `ConfigFlags`, `IOStreams` 字段
-- 通过 `NewDefaultKubectlCommandWithArgs` 方法构造 `*cobra.Command`
+- 调用 `NewDefaultKubectlCommandWithArgs` 方法构造最终的 `*cobra.Command`
 
 ### NewDefaultKubectlCommandWithArgs
 ``` go
@@ -80,11 +79,10 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
 ```
 
 `NewDefaultKubectlCommandWithArgs` 是 `kubectl` 的核心方法, 主要完成两件事:
-- 通过 `NewKubectlCommand` 方法完成原生 `kubectl` 命令行的构建
-  - [NewKubectlCommand](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/kubectl/pkg/cmd/cmd.go#L250) 会完成全部原生 `kubectl` 命令的构造；本文仅需关注子命令 `plugin`，用于获取 plugin 列表，后续展开分析。
 
-      ``` go
-      func NewKubectlCommand(o KubectlOptions) *cobra.Command {
+- 通过 `NewKubectlCommand` 方法完成原生 `kubectl` 命令行的构建；[NewKubectlCommand](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/kubectl/pkg/cmd/cmd.go#L250) 相对复杂，本文仅需关注子命令 `plugin`，kubectl 通过调用 plugin list 来获取列表
+   ``` go
+   func NewKubectlCommand(o KubectlOptions) *cobra.Command {
         ...
         cmds := &cobra.Command{
                 Use:   "kubectl",
@@ -98,8 +96,8 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
         cmds.AddCommand(plugin.NewCmdPlugin(o.IOStreams))
 
         return cmds
-        }
-     ```
+   }
+   ```
 - 通过 `o.Arguments` (原始os.Args) 判断是否执行 `plugin`， 如果 `是` 则直接执行 `plugin`，否则返回 cmds。判断逻辑：
   - 存在 `o.Arguments`
   - `command` 未在 cmds 中注册
@@ -135,10 +133,10 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
 
 ### 阶段性总结
 
-kubectl plugin 支持两种功能：`获取列表` 和 `执行`， 接下来将逐一分析
+`kubectl plugin` 支持两种功能：`获取列表` 和 `执行`， 接下来将逐一分析
 
-- 获取 plugin 列表 - plugin.NewCmdPlugin
-- 执行 plugin - HandlePluginCommand
+- 获取 plugin 列表功能：调用 plugin.NewCmdPlugin 实现
+- 执行 plugin 功能呢：调用 HandlePluginCommand 实现
 
 ### 获取 plugin 列表
 获取 plugin 列表的接口，由原生 `kubectl` 提供，在 `plugin.NewCmdPlugin` 中实现，代码如下：
@@ -158,9 +156,7 @@ func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
 	return cmd
 }
 ```
-`NewCmdPlugin` 会新建一个 plugin 的 cmd，追加 `NewCmdPluginList` 子命令； 获取 plugin 列表的功能就在 `NewCmdPluginList` 中实现
-
-- NewCmdPluginList
+可以看出，`NewCmdPlugin` 会新建一个 plugin 的 cmd，然后追加 `NewCmdPluginList` 子命令； 获取 plugin 列表的功能就在 `NewCmdPluginList` 中实现
   ``` go
     func NewCmdPluginList(streams genericclioptions.IOStreams) *cobra.Command {
         o := &PluginListOptions{ // 构造 `PluginListOptions`
@@ -182,6 +178,7 @@ func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
         return cmd
     }
   ```
+  `NewCmdPluginList` 主要实现：
   - 构造 [PluginListOptions](https://github.com/kubernetes/kubernetes/blob/fbdd0d7b4165bc5a677d45e4dc693e3260297bfa/staging/src/k8s.io/kubectl/pkg/cmd/plugin/plugin.go#L77)，
     - `PluginListOptions`  实现 `Complete` 和 `Run` 方法，它们提供 `plugin list` 的实现
   - 执行 `o.Complete`
@@ -266,12 +263,12 @@ func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
 - `pluginHandler` - 接口实现了 `Lookup` 和 `Execute` 方法
   - Lookup: 在 `PATH` 中查找满足条件的可执行文件
   - Execute: 调用 `syscall.Exec` 执行
-    ``` go
-    type PluginHandler interface {
-	    Lookup(filename string) (string, bool)
-        Execute(executablePath string, cmdArgs, environment []string) error
-    }
-    ```
+``` go
+type PluginHandler interface {
+	Lookup(filename string) (string, bool)
+    Execute(executablePath string, cmdArgs, environment []string) error
+}
+```
 - `cmdArgs` - 命令行参数
 
 ``` go
@@ -302,7 +299,7 @@ func HandlePluginCommand(pluginHandler PluginHandler, cmdArgs []string) error {
 - 从 `cmdArgs` 获取 `plugin` 的 `foundBinaryPath`
 - 调用 `pluginHandler.Lookup` 获取 `plugin` 的全路径
   ``` go
-    func (h *DefaultPluginHandler) Lookup(filename string) (string, bool) {
+  func (h *DefaultPluginHandler) Lookup(filename string) (string, bool) {
         for _, prefix := range h.ValidPrefixes {
             path, err := exec.LookPath(fmt.Sprintf("%s-%s", prefix, filename))
             if err != nil || len(path) == 0 {
@@ -312,7 +309,7 @@ func HandlePluginCommand(pluginHandler PluginHandler, cmdArgs []string) error {
         }
 
         return "", false
-    }
+  }
   ```
 - 调用 `pluginHandler.Execute` 执行
 ``` go
