@@ -37,7 +37,7 @@ func NewDefaultKubectlCommand() *cobra.Command {
 ```
 
 `NewDefaultKubectlCommand` 主要作用：
-- 构造 `KubectlOptions` 结构体， 其中 `PluginHandler` 接口实现了 `Lookup` 和 `Execute` 方法，分别用于对 `plugin` 的 `查找` 和 `执行` 操作；此处先按下不表，用到时在详细分析
+- 构造 `KubectlOptions` 结构体， 其中 `PluginHandler` 接口实现了 `Lookup` 和 `Execute` 方法，分别执行 `plugin` 的 `查找` 和 `执行` 操作；此处先按下不表，用到时在详细分析
 - 初始化 `Arguments`, `ConfigFlags`, `IOStreams` 字段
 - 调用 `NewDefaultKubectlCommandWithArgs` 方法构造最终的 `*cobra.Command`
 
@@ -79,9 +79,7 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
 ```
 
 `NewDefaultKubectlCommandWithArgs` 是 `kubectl` 的核心方法, 主要完成两件事:
-- 通过 `NewKubectlCommand` 方法完成原生 `kubectl` 命令行的构建
-  - [NewKubectlCommand](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/kubectl/pkg/cmd/cmd.go#L250) 会完成全部原生 `kubectl` 命令的构造；本文仅需关注子命令 `plugin`，用于获取 plugin 列表，后续展开分析。
-
+- 通过 `NewKubectlCommand` 方法完成原生 `kubectl` 命令行的构建；[NewKubectlCommand](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/kubectl/pkg/cmd/cmd.go#L250)相对复杂，本文仅需关注子命令 `plugin`，用于获取 plugin 列表，后续展开分析。
       ``` go
       func NewKubectlCommand(o KubectlOptions) *cobra.Command {
         ...
@@ -157,9 +155,7 @@ func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
 	return cmd
 }
 ```
-`NewCmdPlugin` 会新建一个 plugin 的 cmd，并追加 `NewCmdPluginList` 子命令； 获取 plugin 列表的功能就在 `NewCmdPluginList` 中实现
-
-- NewCmdPluginList
+可以看出，`NewCmdPlugin` 会新建一个 plugin 的 cmd，然后追加 `NewCmdPluginList` 子命令； 获取 plugin 列表的功能就在 `NewCmdPluginList` 中实现
   ``` go
     func NewCmdPluginList(streams genericclioptions.IOStreams) *cobra.Command {
         o := &PluginListOptions{ // 构造 `PluginListOptions`
@@ -181,7 +177,7 @@ func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
         return cmd
     }
   ```
-  `NewCmdPluginList` 方法实现：
+  `NewCmdPluginList` 主要实现：
   - 构造 [PluginListOptions](https://github.com/kubernetes/kubernetes/blob/fbdd0d7b4165bc5a677d45e4dc693e3260297bfa/staging/src/k8s.io/kubectl/pkg/cmd/plugin/plugin.go#L77)，
     - `PluginListOptions`  实现 `Complete` 和 `Run` 方法，它们提供 `plugin list` 的实现
   - 执行 `o.Complete`
