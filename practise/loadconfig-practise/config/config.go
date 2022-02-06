@@ -1,6 +1,6 @@
-package model
+package config
 
-type Yaml struct {
+type PixiuConfiguration struct {
 	Mysql struct {
 		User     string `yaml:"user"`
 		Host     string `yaml:"host"`
