@@ -21,7 +21,7 @@ func main() {
 	}
 }
 ```
-`kubectl` 的 `main` 函数非常简洁，新建 command 后直接执行；command 由核心函数 `NewDefaultKubectlCommand` 返回，让我们一起看看它的真面目。
+`kubectl` 的入口函数 `main` 非常简洁：新建 `command` 后直接执行；`command` 由核心函数 `NewDefaultKubectlCommand` 返回，后续会详细分析该函数。
 
 ### NewDefaultKubectlCommand
 ``` go
@@ -37,10 +37,9 @@ func NewDefaultKubectlCommand() *cobra.Command {
 ```
 
 `NewDefaultKubectlCommand` 主要作用：
-- 构造 `KubectlOptions` 结构体， 其中 `PluginHandler` 接口实现了 `Lookup` 和 `Execute` 方法，分别对 `plugin` 的 `查找` 和 `执行`；先按下不表，用到时在详细分析
-
+- 构造 `KubectlOptions` 结构体， 其中 `PluginHandler` 接口实现了 `Lookup` 和 `Execute` 方法，分别用于对 `plugin` 的 `查找` 和 `执行` 操作；此处先按下不表，用到时在详细分析
 - 初始化 `Arguments`, `ConfigFlags`, `IOStreams` 字段
-- 通过 `NewDefaultKubectlCommandWithArgs` 方法构造 `*cobra.Command`
+- 调用 `NewDefaultKubectlCommandWithArgs` 方法构造最终的 `*cobra.Command`
 
 ### NewDefaultKubectlCommandWithArgs
 ``` go
@@ -135,10 +134,10 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
 
 ### 阶段性总结
 
-kubectl plugin 支持两种功能：`获取列表` 和 `执行`， 接下来将逐一分析
+`kubectl plugin` 支持两种功能：`获取列表` 和 `执行`， 接下来将逐一分析
 
-- 获取 plugin 列表 - plugin.NewCmdPlugin
-- 执行 plugin - HandlePluginCommand
+- 获取 plugin 列表功能：调用 plugin.NewCmdPlugin 实现
+- 执行 plugin 功能呢：调用 HandlePluginCommand 实现
 
 ### 获取 plugin 列表
 获取 plugin 列表的接口，由原生 `kubectl` 提供，在 `plugin.NewCmdPlugin` 中实现，代码如下：
@@ -158,7 +157,7 @@ func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
 	return cmd
 }
 ```
-`NewCmdPlugin` 会新建一个 plugin 的 cmd，追加 `NewCmdPluginList` 子命令； 获取 plugin 列表的功能就在 `NewCmdPluginList` 中实现
+`NewCmdPlugin` 会新建一个 plugin 的 cmd，并追加 `NewCmdPluginList` 子命令； 获取 plugin 列表的功能就在 `NewCmdPluginList` 中实现
 
 - NewCmdPluginList
   ``` go
@@ -182,6 +181,7 @@ func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
         return cmd
     }
   ```
+  `NewCmdPluginList` 方法实现：
   - 构造 [PluginListOptions](https://github.com/kubernetes/kubernetes/blob/fbdd0d7b4165bc5a677d45e4dc693e3260297bfa/staging/src/k8s.io/kubectl/pkg/cmd/plugin/plugin.go#L77)，
     - `PluginListOptions`  实现 `Complete` 和 `Run` 方法，它们提供 `plugin list` 的实现
   - 执行 `o.Complete`
