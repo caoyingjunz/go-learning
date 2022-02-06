@@ -141,9 +141,149 @@ func NewDefaultKubectlCommandWithArgs(o KubectlOptions) *cobra.Command {
 - 如果最终判定为执行 `plugin` ，则调用 `HandlePluginCommand` 进行下一步处理
 
 ### 阶段性总结
-- 查看 plugin - plugin.NewCmdPlugin
-  ``` go
-  ```
+
+kubectl plugin 支持两种功能：`获取列表` 和 `执行`， 接下来将逐一分析
+
+- 获取 plugin 列表 - plugin.NewCmdPlugin
 - 执行 plugin - HandlePluginCommand
   ``` go
+    func HandlePluginCommand(pluginHandler PluginHandler, cmdArgs []string) error {
+        ...
+        // attempt to find binary, starting at longest possible name with given cmdArgs
+        for len(remainingArgs) > 0 {
+            path, found := pluginHandler.Lookup(strings.Join(remainingArgs, "-"))
+            ...
+            foundBinaryPath = path
+            break
+        }
+
+        if err := pluginHandler.Execute(foundBinaryPath, cmdArgs[len(remainingArgs):], os.Environ()); err != nil {
+            return err
+        }
+
+        return nil
+    }
   ```
+
+### 获取 plugin 列表
+获取 plugin 列表的接口，由原生 `kubectl` 提供，在 `plugin.NewCmdPlugin` 中实现，代码如下：
+``` go
+func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "plugin [flags]",
+		DisableFlagsInUseLine: true,
+		Short:                 i18n.T("Provides utilities for interacting with plugins"),
+		Long:                  pluginLong,
+		Run: func(cmd *cobra.Command, args []string) {
+			cmdutil.DefaultSubCommandRun(streams.ErrOut)(cmd, args)
+		},
+	}
+
+	cmd.AddCommand(NewCmdPluginList(streams))
+	return cmd
+}
+```
+`NewCmdPlugin` 会新建一个 plugin 的 cmd，追加 `NewCmdPluginList` 子命令； 获取 plugin 列表的功能就在 `NewCmdPluginList` 中实现
+
+- NewCmdPluginList
+  ``` go
+    func NewCmdPluginList(streams genericclioptions.IOStreams) *cobra.Command {
+        o := &PluginListOptions{ // 构造 `PluginListOptions`
+            IOStreams: streams,
+        }
+
+        cmd := &cobra.Command{
+            Use:     "list",
+            Short:   i18n.T("List all visible plugin executables on a user's PATH"),
+            Example: pluginExample,
+            Long:    pluginListLong,
+            Run: func(cmd *cobra.Command, args []string) {
+                cmdutil.CheckErr(o.Complete(cmd))
+                cmdutil.CheckErr(o.Run())
+            },
+        }
+
+        cmd.Flags().BoolVar(&o.NameOnly, "name-only", o.NameOnly, "If true, display only the binary name of each plugin, rather than its full path")
+        return cmd
+    }
+  ```
+  - 构造 [PluginListOptions](https://github.com/kubernetes/kubernetes/blob/fbdd0d7b4165bc5a677d45e4dc693e3260297bfa/staging/src/k8s.io/kubectl/pkg/cmd/plugin/plugin.go#L77)，
+    - `PluginListOptions`  实现 `Complete` 和 `Run` 方法，它们提供 `plugin list` 的实现
+  - 执行 `o.Complete`
+    ``` go
+    func (o *PluginListOptions) Complete(cmd *cobra.Command) error {
+        o.Verifier = &CommandOverrideVerifier{
+            root:        cmd.Root(),
+            seenPlugins: make(map[string]string),
+        }
+
+        o.PluginPaths = filepath.SplitList(os.Getenv("PATH"))
+        return nil
+    }
+    ```
+    `o.Complete` 很简洁，用于完成 `PluginListOptions` 的初始化, 主要初始化 `Verifier` 和 `PluginPaths`
+    - Verifier 主要检验：
+      - 是否为可执行文件
+      - 是否可能被其他 `plugin` 覆盖
+      - 是否被原生命令行覆盖
+    - PluginPaths
+      - 执行路径，run 函数会遍历 PluginPaths，去寻找符合 plugin 要求的文件
+
+  - 执行 `o.Run`
+    ``` go
+    func (o *PluginListOptions) Run() error {
+        ...
+        for _, dir := range uniquePathsList(o.PluginPaths) {
+            ...
+            files, err := ioutil.ReadDir(dir)
+            ...
+
+            for _, f := range files {
+                if f.IsDir() {
+                    continue
+                }
+                if !hasValidPrefix(f.Name(), ValidPluginFilenamePrefixes) {
+                    continue
+                }
+
+                if isFirstFile {
+                    fmt.Fprintf(o.Out, "The following compatible plugins are available:\n\n")
+                    pluginsFound = true
+                    isFirstFile = false
+                }
+
+                pluginPath := f.Name()
+                if !o.NameOnly {
+                    pluginPath = filepath.Join(dir, pluginPath)
+                }
+
+                fmt.Fprintf(o.Out, "%s\n", pluginPath)
+                if errs := o.Verifier.Verify(filepath.Join(dir, f.Name())); len(errs) != 0 {
+                    for _, err := range errs {
+                        fmt.Fprintf(o.ErrOut, "  - %s\n", err)
+                        pluginWarnings++
+                    }
+                }
+            }
+        }
+        ...
+        return nil
+    }
+    ```
+    [o.Run](https://github.com/kubernetes/kubernetes/blob/fbdd0d7b4165bc5a677d45e4dc693e3260297bfa/staging/src/k8s.io/kubectl/pkg/cmd/plugin/plugin.go#L117) 主要实现：
+    - 遍历 `o.PluginPaths`，读目录下全部文件
+    - 判断是否为文件
+    - 判断是否为 `plugin` 文件，以 `kubectl-` 开头
+    - 找到第一个 `plugin` 文件时，写入 `The following compatible plugins are available`
+    - 将 `plugin` 文件写入标准输出
+    - 判断是否可执行，如果不是则将信息写入错误输出
+
+  - 执行效果
+    ``` shell
+    # kubectl plugin list
+    The following compatible plugins are available:
+
+    /usr/local/bin/kubectl-test
+    ```
+
+### 执行 plugin
