@@ -5,8 +5,6 @@
 `kubectl` 作为 [kubernetes](https://github.com/kubernetes/kubernetes) 官方提供的命令行工具，基于 [cobra](https://github.com/spf13/cobra) 实现，用于对 `kubernetes` 集群进行管理
 
 - 本文仅针对 `kubectl plugin` 的源码进行分析
-- 使用请移步 [Extend kubectl with plugins](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/)
-- `cobra` demo 请移步 [pixiuctl](https://github.com/caoyingjunz/go-learning/tree/master/practise/cobra-practise)
 
 ### kubectl 版本
 - master
@@ -40,12 +38,7 @@ func NewDefaultKubectlCommand() *cobra.Command {
 
 `NewDefaultKubectlCommand` 主要作用：
 - 构造 `KubectlOptions` 结构体， 其中 `PluginHandler` 接口实现了 `Lookup` 和 `Execute` 方法，分别对 `plugin` 的 `查找` 和 `执行`；先按下不表，用到时在详细分析
-    ``` go
-    type PluginHandler interface {
-	    Lookup(filename string) (string, bool)
-        Execute(executablePath string, cmdArgs, environment []string) error
-    }
-    ```
+
 - 初始化 `Arguments`, `ConfigFlags`, `IOStreams` 字段
 - 通过 `NewDefaultKubectlCommandWithArgs` 方法构造 `*cobra.Command`
 
@@ -146,24 +139,6 @@ kubectl plugin 支持两种功能：`获取列表` 和 `执行`， 接下来将�
 
 - 获取 plugin 列表 - plugin.NewCmdPlugin
 - 执行 plugin - HandlePluginCommand
-  ``` go
-    func HandlePluginCommand(pluginHandler PluginHandler, cmdArgs []string) error {
-        ...
-        // attempt to find binary, starting at longest possible name with given cmdArgs
-        for len(remainingArgs) > 0 {
-            path, found := pluginHandler.Lookup(strings.Join(remainingArgs, "-"))
-            ...
-            foundBinaryPath = path
-            break
-        }
-
-        if err := pluginHandler.Execute(foundBinaryPath, cmdArgs[len(remainingArgs):], os.Environ()); err != nil {
-            return err
-        }
-
-        return nil
-    }
-  ```
 
 ### 获取 plugin 列表
 获取 plugin 列表的接口，由原生 `kubectl` 提供，在 `plugin.NewCmdPlugin` 中实现，代码如下：
@@ -286,4 +261,75 @@ func NewCmdPlugin(streams genericclioptions.IOStreams) *cobra.Command {
     /usr/local/bin/kubectl-test
     ```
 
-### 执行 plugin
+### HandlePluginCommand
+`HandlePluginCommand` 接收 pluginHandler 和 cmdArgs 参数
+- `pluginHandler` - 接口实现了 `Lookup` 和 `Execute` 方法
+  - Lookup: 在 `PATH` 中查找满足条件的可执行文件
+  - Execute: 调用 `syscall.Exec` 执行
+    ``` go
+    type PluginHandler interface {
+	    Lookup(filename string) (string, bool)
+        Execute(executablePath string, cmdArgs, environment []string) error
+    }
+    ```
+- `cmdArgs` - 命令行参数
+
+``` go
+func HandlePluginCommand(pluginHandler PluginHandler, cmdArgs []string) error {
+	var remainingArgs []string // all "non-flag" arguments
+    ...
+
+	foundBinaryPath := ""
+
+	for len(remainingArgs) > 0 {
+		path, found := pluginHandler.Lookup(strings.Join(remainingArgs, "-"))
+	    ...
+
+		foundBinaryPath = path
+		break
+	}
+    ...
+
+	if err := pluginHandler.Execute(foundBinaryPath, cmdArgs[len(remainingArgs):], os.Environ()); err != nil {
+		return err
+	}
+
+	return nil
+}
+```
+
+`HandlePluginCommand` 主要完成：
+- 从 `cmdArgs` 获取 `plugin` 的 `foundBinaryPath`
+- 调用 `pluginHandler.Lookup` 获取 `plugin` 的全路径
+  ``` go
+    func (h *DefaultPluginHandler) Lookup(filename string) (string, bool) {
+        for _, prefix := range h.ValidPrefixes {
+            path, err := exec.LookPath(fmt.Sprintf("%s-%s", prefix, filename))
+            if err != nil || len(path) == 0 {
+                continue
+            }
+            return path, true
+        }
+
+        return "", false
+    }
+  ```
+- 调用 `pluginHandler.Execute` 执行
+``` go
+func (h *DefaultPluginHandler) Execute(executablePath string, cmdArgs, environment []string) error {
+
+    ...
+	return syscall.Exec(executablePath, append([]string{executablePath}, cmdArgs...), environment)
+}
+```
+- 执行效果
+``` shell
+# kubectl test --name caoyingjun
+kubectl plugin running --name caoyingjun
+```
+
+### 总结
+本文对 `kubectl plugin` 的实现原理进行分析，对获取 plugin 列表和执行 plugin 进行代码级分析
+
+- 使用请移步 [Extend kubectl with plugins](https://kubernetes.io/docs/tasks/extend-kubectl/kubectl-plugins/)
+- `cobra` demo 请移步 [pixiuctl](https://github.com/caoyingjunz/go-learning/tree/master/practise/cobra-practise)
