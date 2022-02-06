@@ -11,12 +11,12 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 - workload 自动扩缩容 [piuxiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
 
 ## Kubernetes
-- [kube-proxy 源码分析](./doc/kubernetes/kube-proxy.md)
+- [kubectl plugin 源码分析](./doc/kubernetes/kubectl-plugin.md)
 - [kubernetes 网络分析](./doc/kubernetes/network.md)
+- [kube-proxy 源码分析](./doc/kubernetes/kube-proxy.md)
 - [operator 用法展示](./doc/kubernetes/operator.md)
 - [CSI 注册机制源码分析](./doc/kubernetes/csi.md)
 - [cloud-provider-openstack](https://github.com/kubernetes/cloud-provider-openstack)
-- [kubectl plugin 源码分析](./doc/kubernetes/kubectl-plugin.md)
 
 ## Examples
 - [Examples](./examples/README.md) 提供丰富的 `kubernetes` 用法举例.
