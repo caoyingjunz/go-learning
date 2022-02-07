@@ -3,7 +3,6 @@ module go-learning
 go 1.14
 
 require (
-	github.com/caoyingjunz/client-helm v0.0.0-20211214030342-0ce781e67304
 	github.com/denisenkom/go-mssqldb v0.9.0 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible
 	github.com/fsnotify/fsnotify v1.4.9
@@ -31,6 +30,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.23.0
 	k8s.io/apimachinery v0.23.0
+	k8s.io/apiserver v0.0.0
 	k8s.io/cli-runtime v0.0.0
 	k8s.io/client-go v0.23.0
 	k8s.io/component-base v0.0.0
@@ -40,6 +40,7 @@ require (
 	k8s.io/kubectl v0.0.0
 	k8s.io/kubernetes v1.23.0
 	k8s.io/metrics v0.23.0
+	k8s.io/utils v0.0.0-20211116205334-6203023598ed // indirect
 )
 
 replace (
