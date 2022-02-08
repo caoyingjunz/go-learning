@@ -24,8 +24,27 @@ func (g *GinResp) SetMessage(msg string) {
 	g.Message = msg
 }
 
+type practiseDB struct {
+	db interface{}
+	s  string
+}
+
+func (c *practiseDB) getPractise(db interface{}) *practiseDB {
+	c.db = db
+	return c
+}
+
+func (c *practiseDB) get() string {
+	return c.s
+}
+
+var pdb = practiseDB{s: "ceshi db orm"}
+
 func GetPractise(c *gin.Context) {
 	r := GinResp{}
+
+	desc := pdb.getPractise("db-driver").get()
+	log.Glog.Info(desc)
 
 	log.Glog.Info("get GetPractise log")
 
