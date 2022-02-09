@@ -9,7 +9,7 @@ import (
 	"k8s.io/kubectl/pkg/util/i18n"
 	"k8s.io/kubectl/pkg/util/templates"
 
-	pcmdutil "go-learning/practise/cobra-practise/cmd/util"
+	pcmdutil "go-learning/practise/cobra-practise/pixiuctl/util"
 )
 
 var (

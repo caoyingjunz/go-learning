@@ -6,7 +6,7 @@ import (
 
 	"k8s.io/component-base/cli"
 
-	"go-learning/practise/cobra-practise/cmd/app"
+	"go-learning/practise/cobra-practise/pixiuctl/app"
 )
 
 func main() {
