@@ -12,8 +12,8 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 
 ## Kubernetes
 - [kubectl plugin 源码分析](./doc/kubernetes/kubectl-plugin.md)
-- [scheduler 源码分析1 - 启动](./doc/kubernetes/scheduler-start.md)
-- [scheduler 源码分析2 - 调度](./doc/kubernetes/scheduler-schedule.md)
+- [scheduler 源码分析一 - 启动](./doc/kubernetes/scheduler-start.md)
+- [scheduler 源码分析二 - 调度](./doc/kubernetes/scheduler-schedule.md)
 - [kubernetes 网络分析](./doc/kubernetes/network.md)
 - [kube-proxy 源码分析](./doc/kubernetes/kube-proxy.md)
 - [operator 用法展示](./doc/kubernetes/operator.md)
