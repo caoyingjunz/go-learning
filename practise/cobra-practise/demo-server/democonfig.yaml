@@ -1,0 +1,9 @@
+default:
+  name: caoyingjun
+
+mysql:
+  user: caoyingjun
+  password: caoyingjun
+  host: 8.8.8.8
+  port: 3306
+  name: test

@@ -18,10 +18,10 @@ import (
 	"k8s.io/kubectl/pkg/util/i18n"
 	"k8s.io/kubectl/pkg/util/templates"
 
-	"go-learning/practise/cobra-practise/cmd/apply"
-	"go-learning/practise/cobra-practise/cmd/create"
-	"go-learning/practise/cobra-practise/cmd/plugin"
-	pcmdutil "go-learning/practise/cobra-practise/cmd/util"
+	"go-learning/practise/cobra-practise/pixiuctl/apply"
+	"go-learning/practise/cobra-practise/pixiuctl/create"
+	"go-learning/practise/cobra-practise/pixiuctl/plugin"
+	pcmdutil "go-learning/practise/cobra-practise/pixiuctl/util"
 )
 
 var (
@@ -156,7 +156,7 @@ func NewDefaultPixiuCommand() *cobra.Command {
 	})
 }
 
-// NewDefaultPixiuCommand creates the `pixiuctl` command with default arguments
+// NewDefaultPixiuctlCommandWithArgs creates the `pixiuctl` command with default arguments
 func NewDefaultPixiuctlCommandWithArgs(o PixiuOptions) *cobra.Command {
 	cmd := NewPixiuCommand(o)
 
