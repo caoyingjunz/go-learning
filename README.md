@@ -27,7 +27,7 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
   - plugin
 
 ## TODO
-- scheduler 代码分析
+- scheduler 代码分析(WIP)
 - kubelet 代码分析
 - 微服务学习（istio）
 - gc 机制分析
