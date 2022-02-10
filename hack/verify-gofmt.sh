@@ -26,7 +26,6 @@ find_files() {
       \( \
         -wholename './output' \
         -o -wholename '*/vendor/*' \
-        -o -wholename './staging' \
       \) -prune \
     \) -name '*.go'
 }
