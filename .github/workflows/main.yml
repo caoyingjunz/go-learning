@@ -38,10 +38,10 @@ jobs:
         with:
           go-version: 1.16
 
-#      - name: Run go fmt test
-#        run: hack/verify-gofmt.sh
-#        env:
-#          GO111MODULE: auto
-#
-      - name: Run go-learning unit test
-        run: go test -v ./...
+      - name: Run go fmt test
+        run: hack/verify-gofmt.sh
+        env:
+          GO111MODULE: auto
+
+#      - name: Run go-learning unit test
+#        run: go test -v ./...
