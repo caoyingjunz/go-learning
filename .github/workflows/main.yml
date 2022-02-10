@@ -22,8 +22,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Lint markdown files
-        run: find  ./ -name  "*.md" | xargs mdl -r ~MD010,~MD013,~MD022,~MD024,~MD029,~MD031,~MD032,~MD033,~MD034,~MD036
+#      - name: Lint markdown files
+#        run: find  ./ -name  "*.md" | xargs mdl -r ~MD010,~MD013,~MD022,~MD024,~MD029,~MD031,~MD032,~MD033,~MD034,~MD036
 
   golang-lint:
     runs-on: ubuntu-latest
@@ -36,12 +36,12 @@ jobs:
       - name: Set up Golang
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version: 1.16
 
       - name: Run go fmt test
         run: hack/verify-gofmt.sh
         env:
           GO111MODULE: auto
- 
-      - name: Run go-learning unit test
-        run: go test -v ./...
+
+#      - name: Run go-learning unit test
+#        run: go test -v ./...

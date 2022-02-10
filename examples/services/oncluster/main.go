@@ -11,7 +11,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-
 )
 
 func main() {
@@ -34,12 +33,11 @@ func main() {
 
 	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
-
 	list, err := serviceClient.List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
 	for _, d := range list.Items {
-		fmt.Printf("%s\n",d.Name)
+		fmt.Printf("%s\n", d.Name)
 	}
 }
