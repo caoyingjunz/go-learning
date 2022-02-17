@@ -1,6 +1,10 @@
 package middleware
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -8,7 +12,9 @@ import (
 	"go-learning/practise/gin-practise/log"
 )
 
-//refer to https://mp.weixin.qq.com/s/gBWEHe20Lv_2wBSlM2WeVA
+const (
+	testName = "test"
+)
 
 func Auth(c *gin.Context) {
 	// TODO: 用于进行 auth 校验
@@ -16,6 +22,51 @@ func Auth(c *gin.Context) {
 	if test == "err" {
 		c.AbortWithStatusJSON(400, map[string]string{"error": "log"})
 		return
+	}
+}
+
+type requestObject struct {
+	Name string `json:"name"`
+}
+
+func (o *requestObject) validate() error {
+	return nil
+}
+
+func parseObjectFromRequest(c *gin.Context) (*requestObject, error) {
+	data, err := c.GetRawData()
+	if err != nil {
+		return nil, err
+	}
+
+	var obj requestObject
+	if err = json.Unmarshal(data, &obj); err != nil {
+		return nil, err
+	}
+	if err = obj.validate(); err != nil {
+		return nil, err
+	}
+
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data)) // 回写字节流
+	return &obj, nil
+}
+
+// AllowAccess 从 gin.Context 获取指定字段
+func AllowAccess() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		fmt.Println("allow access start")
+		o, err := parseObjectFromRequest(c)
+		if err != nil {
+			c.AbortWithStatusJSON(500, map[string]string{"error": err.Error()})
+			return
+		}
+
+		if o.Name == testName {
+			c.AbortWithStatusJSON(400, map[string]string{"error": "test name"})
+			return
+		}
+
+		fmt.Println("access allow done")
 	}
 }
 

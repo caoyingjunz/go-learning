@@ -2,6 +2,7 @@ package endpoint
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 
@@ -52,6 +53,21 @@ func GetPractise(c *gin.Context) {
 	r.SetCode(200)
 
 	c.JSON(200, r)
+}
+
+func PostMid(c *gin.Context) {
+	fmt.Println("start mid test")
+	n := struct {
+		Name string `json:"name"`
+		Age  string `json:"age"`
+	}{}
+
+	if err := c.ShouldBindJSON(&n); err != nil {
+		c.AbortWithStatusJSON(400, "bad request")
+		return
+	}
+
+	c.JSON(200, "ok")
 }
 
 func PostPractise(c *gin.Context) {
