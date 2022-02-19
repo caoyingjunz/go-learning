@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"go-learning/practise/gin-practise/endpoint"
+	"go-learning/practise/gin-practise/log"
 	"go-learning/practise/gin-practise/middleware"
 	"go-learning/practise/gin-practise/worker"
 )
@@ -35,9 +36,10 @@ type options struct {
 	addr   string
 	engine *gin.Engine
 	ws     worker.WorkerInterface
+	logDir string
 }
 
-func (c *options) Register() {
+func (c *options) registerHttpRoute() {
 	c.engine.Use(middleware.LoggerToFile(), middleware.Auth)
 
 	m := c.engine.Group("middleware", middleware.AllowAccess())
@@ -71,14 +73,31 @@ func (c *options) run() {
 	}()
 }
 
+func (c *options) registerLog() {
+	log.Register(c.logDir)
+}
+
+func (c *options) registerController() {
+	p := endpoint.New()
+	endpoint.Register(p)
+}
+
+func (c *options) registerWorker() {
+	c.ws = worker.NewWorker()
+	endpoint.RegisterWorker(c.ws)
+}
+
 func NewHttpServer(addr string) *options {
 	o := &options{
 		addr:   addr,
 		engine: gin.Default(),
-		ws:     endpoint.WorkerSet,
 	}
 
-	o.Register()
+	o.registerWorker()
+
+	o.registerLog()
+
+	o.registerHttpRoute()
 	return o
 }
 

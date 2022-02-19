@@ -1,11 +1,14 @@
 package options
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/spf13/cobra"
 
 	"go-learning/practise/cobra-practise/demo-server/app/config"
+	"go-learning/practise/cobra-practise/demo-server/dao"
 )
 
 // Options has all the params needed to run a Autoscaler
@@ -35,6 +38,29 @@ const (
 	defaultConfigFile = "democonfig.yaml"
 )
 
+func (o *Options) registerDatabase() error {
+	sqlConfig := o.ComponentConfig.Mysql
+	dbConnection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+		sqlConfig.User,
+		sqlConfig.Password,
+		sqlConfig.Host,
+		sqlConfig.Port,
+		sqlConfig.Name)
+	DB, err := gorm.Open("mysql", dbConnection)
+	if err != nil {
+		return err
+	}
+
+	// set the connect pools
+	DB.DB().SetMaxIdleConns(10)
+	DB.DB().SetMaxOpenConns(100)
+	o.DB = DB
+
+	// 注册或者通过 factory 的方式参数调用
+	dao.Register(o.DB)
+	return nil
+}
+
 func (o *Options) Complete() error {
 	configFile := defaultConfigFile
 	if len(o.ConfigFile) != 0 {
@@ -47,19 +73,12 @@ func (o *Options) Complete() error {
 	}
 	o.ComponentConfig = cfg
 
-	//sqlConfig := o.ComponentConfig.Mysql
-	//dbConnection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", sqlConfig.User, sqlConfig.Password, sqlConfig.Host, sqlConfig.Port, sqlConfig.Name)
-	//DB, err := gorm.Open("mysql", dbConnection)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//// set the connect pools
-	//DB.DB().SetMaxIdleConns(10)
-	//DB.DB().SetMaxOpenConns(100)
-	//o.DB = DB
+	// 注册数据库链接池
+	if err = o.registerDatabase(); err != nil {
+		return err
+	}
 
-	// 其他化客户端初始化
+	// TODO 其他化客户端初始化
 
 	return nil
 }

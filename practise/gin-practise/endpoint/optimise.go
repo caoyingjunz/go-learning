@@ -22,4 +22,8 @@ func New() PreInterface {
 	return &practise{}
 }
 
-var Practise = New()
+var Practise PreInterface
+
+func Register(p PreInterface) {
+	Practise = p
+}

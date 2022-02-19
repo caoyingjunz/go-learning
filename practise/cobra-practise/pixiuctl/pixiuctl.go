@@ -4,13 +4,13 @@ package main
 import (
 	"os"
 
-	"k8s.io/component-base/cli"
-
 	"go-learning/practise/cobra-practise/pixiuctl/app"
 )
 
 func main() {
-	command := app.NewDefaultPixiuCommand()
-	code := cli.Run(command)
-	os.Exit(code)
+	cmd := app.NewDefaultPixiuCommand()
+
+	if err := cmd.Execute(); err != nil {
+		os.Exit(1)
+	}
 }
