@@ -50,6 +50,8 @@ func NewDemoCommand() *cobra.Command {
 func Run(c *options.Options) error {
 	// 打印测试
 	fmt.Println(c.ComponentConfig.Mysql)
+	// 测试工厂函数
+	fmt.Println(c.DBFactory.Test().Get("dd"))
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

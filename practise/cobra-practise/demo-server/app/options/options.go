@@ -20,6 +20,8 @@ type Options struct {
 
 	Master string
 
+	DBFactory dao.ShareDBFactory
+
 	DB *gorm.DB
 }
 
@@ -77,6 +79,9 @@ func (o *Options) Complete() error {
 	if err = o.registerDatabase(); err != nil {
 		return err
 	}
+
+	// 构造数据库工厂函数
+	o.DBFactory = dao.NewDBFactory(o.DB)
 
 	// TODO 其他化客户端初始化
 

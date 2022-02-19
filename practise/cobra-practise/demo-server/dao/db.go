@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/jinzhu/gorm"
@@ -15,4 +16,23 @@ func Register(db *gorm.DB) {
 	})
 }
 
-// TODO
+type TestInterface interface {
+	Get(name string) string
+}
+
+type test struct {
+	factory ShareDBFactory
+	db      *gorm.DB
+}
+
+func (c *test) Get(name string) string {
+	fmt.Println("get name", name)
+	return fmt.Sprintf("get %s", name)
+}
+
+func NewTest(f ShareDBFactory, db *gorm.DB) TestInterface {
+	return &test{
+		factory: f,
+		db:      db,
+	}
+}
