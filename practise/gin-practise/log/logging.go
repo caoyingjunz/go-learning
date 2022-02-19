@@ -18,19 +18,23 @@ type Logger interface {
 var Glog Logger
 var AccessLog Logger
 
-func init() {
-	fileLog := "/Users/caoyuan/workstation/go-learning/practise/gin-practise/practise-log.log"
-	Glog, _ = NewZapLogger(Configuration{
-		LogFile:          fileLog,
+// 注册 AccessLog
+func Register(logDir string) {
+	afileLog := "/Users/caoyuan/workstation/go-learning/practise/gin-practise/practise-access.log"
+	AccessLog, _ = NewZapLogger(Configuration{
+		LogFile:          afileLog,
 		LogLevel:         "INFO",
 		RotateMaxSize:    500,
 		RotateMaxAge:     7,
 		RotateMaxBackups: 3,
 	})
+}
 
-	afileLog := "/Users/caoyuan/workstation/go-learning/practise/gin-practise/practise-access.log"
-	AccessLog, _ = NewZapLogger(Configuration{
-		LogFile:          afileLog,
+// 或者 import 的时候初始化
+func init() {
+	fileLog := "/Users/caoyuan/workstation/go-learning/practise/gin-practise/practise-log.log"
+	Glog, _ = NewZapLogger(Configuration{
+		LogFile:          fileLog,
 		LogLevel:         "INFO",
 		RotateMaxSize:    500,
 		RotateMaxAge:     7,

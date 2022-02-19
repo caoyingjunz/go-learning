@@ -17,7 +17,12 @@ func init() {
 	ip := "103.39.211.122"
 	port := 30692
 	database := "gorm"
-	dbConnection := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", user, password, ip, port, database)
+	dbConnection := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
+		user,
+		password,
+		ip,
+		port,
+		database)
 	// must declare the err to aviod panic: runtime error: invalid memory address or nil pointer dereferences
 	var err error
 	DB, err = gorm.Open("mysql", dbConnection)

@@ -97,9 +97,17 @@ func PostPractise(c *gin.Context) {
 }
 
 var (
-	WorkerSet  = worker.NewWorker()
-	KubeEngine = k8s.NewKubeEngine()
+	WorkerSet  worker.WorkerInterface
+	KubeEngine k8s.EngineInterface
 )
+
+func RegisterWorker(w worker.WorkerInterface) {
+	WorkerSet = w
+}
+
+func RegisterEngine(e k8s.EngineInterface) {
+	KubeEngine = e
+}
 
 func TestQueue(c *gin.Context) {
 	r := GinResp{}
