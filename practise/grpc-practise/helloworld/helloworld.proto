@@ -1,0 +1,23 @@
+
+
+syntax="proto3";
+
+option go_package = "go-learning/practise/grpc-practise/helloworld/helloworld";
+
+// protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative helloworld/helloworld.proto
+
+package helloworld;
+
+service Pixiuer {
+  rpc SayHello (HelloRequest) returns (HelloResponse) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloResponse {
+  string message = 1;
+}
