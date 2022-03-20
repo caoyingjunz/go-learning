@@ -25,6 +25,7 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 - [pixiuctl](https://github.com/caoyingjunz/go-learning/tree/master/practise/cobra-practise/pixiuctl) 基于 [cobra](https://github.com/spf13/cobra) 实现命令行
   - subcommand
   - plugin
+- [gRPC Usage](./practise/grpc-practise/README.md)
 
 ## TODO
 - scheduler 代码分析(WIP)

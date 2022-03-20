@@ -4,19 +4,22 @@ package main
 
 import (
 	"context"
-	pd "go-learning/practise/grpc-practise/helloworld"
-	"google.golang.org/grpc"
+	"fmt"
 	"log"
 	"net"
+
+	"google.golang.org/grpc"
+
+	pd "go-learning/practise/grpc-practise/pixiu"
 )
 
 type server struct {
-	pd.UnimplementedPixiuerServer
+	pd.UnimplementedPixiuServer
 }
 
-func (s *server) SayHello(ctx context.Context, in *pd.HelloRequest) (*pd.HelloResponse, error) {
-	log.Printf("Received %v", in.Name)
-	return &pd.HelloResponse{Message: "hello " + in.GetName()}, nil
+func (s *server) GetPixiu(ctx context.Context, in *pd.PixiuRequest) (*pd.PixiuReply, error) {
+	log.Printf("Received %s %d", in.Name, in.Id)
+	return &pd.PixiuReply{Message: fmt.Sprintf("%s %d", in.GetName(), in.GetId())}, nil
 }
 
 func main() {
@@ -26,7 +29,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pd.RegisterPixiuerServer(s, &server{})
+	pd.RegisterPixiuServer(s, &server{})
 
 	log.Printf("listening at %v", l.Addr())
 	if err = s.Serve(l); err != nil {

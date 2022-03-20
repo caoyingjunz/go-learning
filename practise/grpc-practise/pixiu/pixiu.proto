@@ -1,0 +1,23 @@
+
+syntax="proto3";
+
+option go_package = "go-learning/practise/grpc-practise/pixiu/pixiu";
+
+// protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative pixiu/pixiu.proto
+
+package pixiu;
+
+service Pixiu {
+  rpc GetPixiu (PixiuRequest) returns (PixiuReply) {}
+}
+
+// The request message containing the user's name.
+message PixiuRequest {
+  int64  id = 1;
+  string name = 2;
+}
+
+// The response message containing the greetings
+message PixiuReply {
+  string message = 1;
+}

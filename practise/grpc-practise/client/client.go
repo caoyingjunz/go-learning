@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	pd "go-learning/practise/grpc-practise/helloworld"
+	pd "go-learning/practise/grpc-practise/pixiu"
 )
 
 var (
@@ -22,12 +22,12 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := pd.NewPixiuerClient(conn)
+	c := pd.NewPixiuClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	r, err := c.SayHello(ctx, &pd.HelloRequest{Name: "caoyingjun"})
+	r, err := c.GetPixiu(ctx, &pd.PixiuRequest{Id: 12345, Name: "caoyingjun"})
 	if err != nil {
 		log.Fatalf("failed to sayhello %v", err)
 	}
