@@ -3,6 +3,7 @@ module go-learning
 go 1.16
 
 require (
+	github.com/containerd/containerd v1.6.1 // indirect
 	github.com/denisenkom/go-mssqldb v0.9.0 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible
 	github.com/fsnotify/fsnotify v1.4.9
@@ -12,7 +13,6 @@ require (
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/websocket v1.4.2
 	github.com/hpcloud/tail v1.0.0
-	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/jinzhu/gorm v1.9.12
 	github.com/lib/pq v1.10.0 // indirect
 	github.com/pkg/errors v0.9.1
@@ -22,17 +22,17 @@ require (
 	github.com/spf13/pflag v1.0.5
 	go.uber.org/zap v1.19.0
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
-	google.golang.org/grpc v1.40.0
+	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.23.0
 	k8s.io/apimachinery v0.23.0
-	k8s.io/apiserver v0.0.0
+	k8s.io/apiserver v0.22.5
 	k8s.io/cli-runtime v0.0.0
 	k8s.io/client-go v0.23.0
-	k8s.io/component-base v0.0.0
+	k8s.io/component-base v0.22.5
 	k8s.io/controller-manager v0.0.0
 	k8s.io/klog v0.4.0
 	k8s.io/klog/v2 v2.30.0
