@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/containerd/containerd/integration/remote/util"
-	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1"
+	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
 )
 
 var (
@@ -30,7 +30,7 @@ func main() {
 	conn, err := grpc.DialContext(ctx, addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithContextDialer(dialer),
-		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(11)),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(88)),
 	)
 	if err != nil {
 		klog.Errorf("Connect remote image service %s failed: %v", addr, err)
