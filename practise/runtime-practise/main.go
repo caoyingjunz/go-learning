@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	endpoint = "/run/containerd/containerd.sock"
+	endpoint = "unix:///run/containerd/containerd.sock"
 )
 
 func main() {
