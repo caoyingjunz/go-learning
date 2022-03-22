@@ -12,9 +12,11 @@ import (
 )
 
 const (
-	timeout    = 1 * time.Minute
-	endpoint   = "unix:///run/containerd/containerd.sock"
-	maxMsgSize = 999999
+	timeout  = 1 * time.Minute
+	endpoint = "unix:///run/containerd/containerd.sock"
+	// maxMsgSize use 16MB as the default message size limit.
+	// grpc library default is 4MB
+	maxMsgSize = 1024 * 1024 * 16
 )
 
 func main() {
