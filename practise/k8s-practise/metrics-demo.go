@@ -52,7 +52,7 @@ func main() {
 
 	selector, err := metav1.LabelSelectorAsSelector(d.Spec.Selector)
 	// 获取 metrice cpu
-	podMetricsInfo, time, err := metricsClient.GetResourceMetric(context.TODO(), v1.ResourceMemory, "default", selector, "nginx")
+	podMetricsInfo, time, err := metricsClient.GetResourceMetric(v1.ResourceMemory, "default", selector)
 	if err != nil {
 		panic(err)
 	}

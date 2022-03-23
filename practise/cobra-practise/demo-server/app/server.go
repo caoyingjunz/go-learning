@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"k8s.io/apiserver/pkg/server"
 	"k8s.io/klog/v2"
 
 	"go-learning/practise/cobra-practise/demo-server/app/options"
@@ -55,11 +54,6 @@ func Run(c *options.Options) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	go func() {
-		stopCh := server.SetupSignalHandler()
-		<-stopCh
-		cancel()
-	}()
 
 	StartDemoServer(ctx)
 
