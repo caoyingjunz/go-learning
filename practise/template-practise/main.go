@@ -10,7 +10,20 @@ import (
 	pt "go-learning/practise/template-practise/template"
 )
 
-// 参考 https://www.cnblogs.com/f-ck-need-u/p/10053124.html
+// 内置一些用于比较的函数：
+// eq arg1 arg2：
+// arg1 == arg2时为true
+// ne arg1 arg2：
+// arg1 != arg2时为true
+// lt arg1 arg2：
+// arg1 < arg2时为true
+// le arg1 arg2：
+// arg1 <= arg2时为true
+// gt arg1 arg2：
+// arg1 > arg2时为true
+// ge arg1 arg2：
+// arg1 >= arg2时为true
+// 更多可以 参考 https://www.cnblogs.com/f-ck-need-u/p/10053124.html
 // 渲染 + 通用模板合并
 
 const (
