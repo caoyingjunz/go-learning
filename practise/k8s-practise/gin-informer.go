@@ -14,6 +14,11 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// assignedPod2 selects pods that are assigned (scheduled and running).
+func assignedPod2(pod *corev1.Pod) bool {
+	return pod.Spec.NodeName == "test"
+}
+
 func main() {
 	config, err := clientcmd.BuildConfigFromFlags("", "/Users/caoyuan/.kube/config")
 	if err != nil {
@@ -47,7 +52,7 @@ func main() {
 		FilterFunc: func(obj interface{}) bool {
 			switch t := obj.(type) {
 			case *corev1.Pod:
-				return assignedPod(t)
+				return assignedPod2(t) // 可用，可不用
 			case cache.DeletedFinalStateUnknown:
 				if _, ok := t.Obj.(*corev1.Pod); ok {
 					// The carried object may be stale, so we don't use it to check if
