@@ -33,7 +33,7 @@ type IpSpec struct {
 
 func main() {
 	client := http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Get(fmt.Sprintf("http://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc", "183.136.182.138"))
+	resp, err := client.Get(fmt.Sprintf("http://ip.taobao.com/outGetIpInfo?ip=%s&accessKey=alibaba-inc", "183.183.183.183"))
 	if err != nil {
 		panic(err)
 	}
