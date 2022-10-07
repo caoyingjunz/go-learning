@@ -1,0 +1,47 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  misspell-check:
+    runs-on: ubuntu-latest
+    container: pouchcontainer/pouchlinter:v0.1.2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+#      - name: Lint markdown files
+#        run: find  ./ -name  "*.md" | xargs mdl -r ~MD010,~MD013,~MD022,~MD024,~MD029,~MD031,~MD032,~MD033,~MD034,~MD036
+
+  golang-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Set up Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Run go fmt test
+        run: hack/verify-gofmt.sh
+        env:
+          GO111MODULE: auto
+
+#      - name: Run go-learning unit test
+#        run: go test -v ./...

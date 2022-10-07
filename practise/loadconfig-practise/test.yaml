@@ -1,0 +1,19 @@
+cache:
+  enable : false
+  list : [redis,mongoDB]
+mysql:
+  user : root
+  password : Tech2501
+  host : 8.8.8.8
+  port : 3306
+  name : cwi
+student:
+  caoyingjun1:
+    school: zhiyuan
+    age: 18
+  caoyingjun2:
+    school: zhiyuan
+    age: 19
+  caoyingjun3:
+    school: sizhong
+name: yamltest
