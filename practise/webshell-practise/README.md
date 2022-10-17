@@ -1,6 +1,6 @@
 # WebShell demo
 
-通过 `webshell` 连接到 `kubernetes` 集群的指定 pod，并执行相互操作
+通过 `webshell` 连接到 `kubernetes` 集群的指定 `pod`，并执行相互操作
 
 ## 使用工具
   - gin
