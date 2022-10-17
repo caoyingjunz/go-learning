@@ -27,6 +27,7 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
   - plugin
 - [gRPC Usage](./practise/grpc-practise/README.md)
 - [gin&informer](./practise/k8s-practise/gin-informer.go) 提供 `gin` 调用 `informer` 的用法
+- [webShell](https://github.com/caoyingjunz/kube-webshell) 提供 `webshell` 调用 `kubernetes` `pod` 的用法展示
 
 ## TODO
 - scheduler 代码分析(WIP)
