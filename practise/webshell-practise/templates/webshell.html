@@ -1,0 +1,111 @@
+<html>
+<head>
+    <link rel="stylesheet" href="static/css/xterm.css" />
+    <link rel="stylesheet" href="static/css/bootstrap.min.css" />
+    <script src="static/js/xterm.js"></script>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js//sockjs.min.js"></script>
+    <!--    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>-->
+    <style>
+        body {
+            color: #111;
+            margin: 20px;
+        }
+
+        #terminal-container {
+            margin: 0 auto;
+        }
+        #connect {
+            margin: 0 auto;
+        }
+        #terminal-container a {
+            color: #fff;
+        }
+        .panel-body{
+            background-color: #000;
+        }
+        .xterm-rows {
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body style="border-width: 0px;margin:0px">
+
+<form class="form-inline" style="margin: 0px">
+    <button type="button" class="btn btn-default" onclick="ws_connect()" id="connect_container">重新连接</button>
+</form>
+<div style="padding: 0px;border: 0px;margin: 0px">
+    <div id="terminal-container"></div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        ws_connect();
+    });
+
+    // 获取宽度和高度
+    cols=parseInt(document.body.clientWidth /9)
+    rows=parseInt(document.body.clientHeight / 20)
+    // 定义term对象
+    var term = new Terminal({
+        "cursorBlink":true,
+        "rows":rows,
+        "cols":cols,
+    });
+
+    // 定义ws链接
+    function ws_connect(){
+        var socket
+        // 隐藏连接按钮显示断开按钮
+        $("#connect_container").hide()
+        $("#drop_container").show()
+        h=$("input[name=h]").val()
+        p=$("input[name=p]").val()
+        // 获取容器id
+        containers_id=$("input[name=containers_id]").val()
+        // 打印容器id
+        if( h == "" || p == "" || containers_id == ""){
+            alert("不能为空!")
+            return false
+        }
+        // 获取term div
+        container = document.getElementById('terminal-container');
+        // 生成参数
+        localurl=window.location.href.split('/')[2]
+        url = 'http://'+localurl+'/webshell/ws?context={{.context}}&namespace={{.namespace}}&pod={{.pod}}&container={{.container}}&rows='+rows+'&cols='+cols
+        console.log(url)
+        // 生成socket对象
+        socket = new SockJS(url);
+        $("#terminal-container").html("")
+        term.open(document.getElementById('terminal-container'));
+        term.on('data', function (data) {
+            if (socket.readyState == 1) {
+                socket.send(data);
+            }
+        });
+        socket.onmessage = function (e) {
+            term.write(e.data);
+        };
+        socket.onclose = function (e) {
+            term.write("连接中断");
+            $("#connect_container").show()
+            $("#drop_container").hide()
+        };
+        socket.onopen = function () {
+            resize(socket)
+        };
+        window.onresize=function(){
+            resize(socket)
+        }
+    }
+    function resize(socket) {
+        cols=parseInt(document.body.clientWidth /9)
+        rows=parseInt(document.body.clientHeight / 20)
+        term.resize(cols,rows)
+        socket.send('{"cols":'+cols+',"rows":'+rows+'}')
+    }
+</script>
+</body>
+</html>
