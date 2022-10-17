@@ -6,7 +6,8 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <script src="static/js/jquery.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="static/js//sockjs.min.js"></script>
+    <!--    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>-->
     <style>
         body {
             color: #111;
@@ -33,7 +34,7 @@
 <body style="border-width: 0px;margin:0px">
 
 <form class="form-inline" style="margin: 0px">
-    <button type="button" class="btn btn-default" onclick="ws_connect()" id="connect_container">连接</button>
+    <button type="button" class="btn btn-default" onclick="ws_connect()" id="connect_container">重新连接</button>
 </form>
 <div style="padding: 0px;border: 0px;margin: 0px">
     <div id="terminal-container"></div>
@@ -45,10 +46,8 @@
     });
 
     // 获取宽度和高度
-    console.log(document.body.clientWidth)
     cols=parseInt(document.body.clientWidth /9)
     rows=parseInt(document.body.clientHeight / 20)
-    console.log(rows,cols)
     // 定义term对象
     var term = new Terminal({
         "cursorBlink":true,
@@ -67,7 +66,6 @@
         // 获取容器id
         containers_id=$("input[name=containers_id]").val()
         // 打印容器id
-        console.log(h,p,containers_id)
         if( h == "" || p == "" || containers_id == ""){
             alert("不能为空!")
             return false
@@ -76,7 +74,7 @@
         container = document.getElementById('terminal-container');
         // 生成参数
         localurl=window.location.href.split('/')[2]
-        url = 'http://'+localurl+'/terminal/ws?context={{.context}}&namespace={{.namespace}}&pod={{.pod}}&container={{.container}}&rows='+rows+'&cols='+cols
+        url = 'http://'+localurl+'/webshell/ws?context={{.context}}&namespace={{.namespace}}&pod={{.pod}}&container={{.container}}&rows='+rows+'&cols='+cols
         console.log(url)
         // 生成socket对象
         socket = new SockJS(url);
@@ -91,7 +89,7 @@
             term.write(e.data);
         };
         socket.onclose = function (e) {
-            term.write("session is close");
+            term.write("连接中断");
             $("#connect_container").show()
             $("#drop_container").hide()
         };
@@ -101,7 +99,6 @@
         window.onresize=function(){
             resize(socket)
         }
-
     }
     function resize(socket) {
         cols=parseInt(document.body.clientWidth /9)
@@ -110,6 +107,5 @@
         socket.send('{"cols":'+cols+',"rows":'+rows+'}')
     }
 </script>
-
 </body>
 </html>

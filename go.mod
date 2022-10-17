@@ -13,6 +13,7 @@ require (
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/gorilla/websocket v1.4.2
 	github.com/hpcloud/tail v1.0.0
+	github.com/igm/sockjs-go/v3 v3.0.2
 	github.com/jinzhu/gorm v1.9.12
 	github.com/lib/pq v1.10.0 // indirect
 	github.com/pkg/errors v0.9.1
