@@ -62,6 +62,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/toml v1.2.0 h1:Rt8g24XnyGTyglgET/PRUNlrUeu9F5L+7FilkXfZgs0=
 github.com/BurntSushi/toml v1.2.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
+github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible h1:1G1pk05UrOh0NlF1oeaaix1x8XzrfjIDK47TY0Zehcw=
+github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd h1:sjQovDkwrZp8u+gxLtPgKGjk5hCxuy2hrRejBTA9xFU=
 github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd/go.mod h1:64YHyfSL2R96J44Nlwm39UHepQbyR5q10x7iYa1ks2E=
 github.com/Microsoft/go-winio v0.4.11/go.mod h1:VhR8bwka0BXejwEJY73c50VrPtXAaKcyvVC4A4RozmA=
@@ -137,6 +139,10 @@ github.com/bugsnag/panicwrap v0.0.0-20151223152923-e2c28503fcd0/go.mod h1:D/8v3k
 github.com/caoyingjunz/gopixiu v0.0.0-20220823143354-8acc52e00d65 h1:tO9qDQkjOYmVNvp38OvgArY298mJmigIHM6cWeyYUWQ=
 github.com/caoyingjunz/gopixiu v0.0.0-20220823143354-8acc52e00d65/go.mod h1:p8dF33nTrvmvkYf+2RfSX9WXupzIs9IazgEXSPrn57U=
 github.com/caoyingjunz/pixiulib v0.0.0-20220819163605-c3c10ec3ed3c/go.mod h1:rQFvtjWLu4D7VSo6H/bI8h0tyWneUtuJJM+AcZBalPk=
+github.com/casbin/casbin v1.9.1 h1:ucjbS5zTrmSLtH4XogqOG920Poe6QatdXtz1FEbApeM=
+github.com/casbin/casbin v1.9.1/go.mod h1:z8uPsfBJGUsnkagrt3G8QvjgTKFMBJ32UP8HpZllfog=
+github.com/casbin/gorm-adapter v1.0.0 h1:s6U2gJQ4reenRde0L85YsrwNt8k0bv6iUAfRigi1/cM=
+github.com/casbin/gorm-adapter v1.0.0/go.mod h1:1E0t3/djAo+vIvDfNPGigJjLMyoh2XNesXMW69R3ykA=
 github.com/cenkalti/backoff/v4 v4.1.1/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=
 github.com/cenkalti/backoff/v4 v4.1.2/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=

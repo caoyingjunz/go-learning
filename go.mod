@@ -4,6 +4,8 @@ go 1.16
 
 require (
 	github.com/caoyingjunz/gopixiu v0.0.0-20220823143354-8acc52e00d65
+	github.com/casbin/casbin v1.9.1
+	github.com/casbin/gorm-adapter v1.0.0
 	github.com/containerd/containerd v1.6.1
 	github.com/denisenkom/go-mssqldb v0.9.0 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible
@@ -11,6 +13,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/hpcloud/tail v1.0.0
 	github.com/jinzhu/gorm v1.9.12
