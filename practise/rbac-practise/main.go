@@ -4,19 +4,39 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/casbin/casbin"
-	"github.com/casbin/gorm-adapter"
+	"github.com/casbin/casbin/v2"
+	"github.com/casbin/gorm-adapter/v3"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
-	// 要使用自己定义的数据库rbac_db,最后的true很重要.默认为false,使用缺省的数据库名casbin,不存在则创建
-	ada := gormadapter.NewAdapter("mysql", "root:password123456@tcp(pixiu01:3306)/casbin", true)
-	enforcer := casbin.NewEnforcer("./model.conf", ada)
+	user := "root"
+	password := "password123456"
+	ip := "pixiu01"
+	port := 3306
+	database := "rbacs"
+	dbConnection := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", user, password, ip, port, database)
+	// must declare the err to aviod panic: runtime error: invalid memory address or nil pointer dereferences
+	var err error
+	db, err := gorm.Open(mysql.Open(dbConnection), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	adapter, err := gormadapter.NewAdapterByDB(db)
+	if err != nil {
+		panic(err)
+	}
+	enforcer, err := casbin.NewEnforcer("./model.conf", adapter)
+	if err != nil {
+		panic(err)
+	}
 
 	// 从DB加载策略
-	if err := enforcer.LoadPolicy(); err != nil {
+	if err = enforcer.LoadPolicy(); err != nil {
 		panic(err)
 	}
 	r := gin.Default()
@@ -60,7 +80,7 @@ func Authorization(e *casbin.Enforcer) gin.HandlerFunc {
 		//获取用户的角色
 		sub := "admin"
 
-		if e.Enforce(sub, obj, act) {
+		if ok, err := e.Enforce(sub, obj, act); err == nil && ok {
 			fmt.Println("验证通过")
 			c.Next()
 		} else {
