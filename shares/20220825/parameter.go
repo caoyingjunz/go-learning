@@ -49,8 +49,8 @@ func main() {
 
 func getParametersFromQuery(c *gin.Context) {
 	r := httputils.NewResponse()
-
-	// do something
+	var p Params
+	_ = c.ShouldBindQuery(&p)
 
 	r.Result = map[string]interface{}{"name": c.Query("name"), "age": c.Query("age")}
 	httputils.SetSuccess(c, r)
@@ -60,6 +60,9 @@ func getParametersFromPath(c *gin.Context) {
 	r := httputils.NewResponse()
 
 	// do something
+	var p Params
+	c.ShouldBindQuery(&p)
+	// do something
 
 	r.Result = map[string]interface{}{"name": c.Param("name"), "age": c.Param("age")}
 	httputils.SetSuccess(c, r)
@@ -67,14 +70,16 @@ func getParametersFromPath(c *gin.Context) {
 
 func getParametersFromBody(c *gin.Context) {
 	r := httputils.NewResponse()
-	p := struct {
-		Name string `json:"name,omitempty"`
-		Age  int    `json:"age,omitempty"`
-	}{}
+	var p Params
 	_ = c.ShouldBindJSON(&p)
 
 	// do something
 
 	r.Result = p
 	httputils.SetSuccess(c, r)
+}
+
+type Params struct {
+	Name string `json:"name,omitempty" uri:"name" binding:"required" form:"name"`
+	Age  int    `json:"age,omitempty" uri:"age" binding:"required" form:"age"`
 }
