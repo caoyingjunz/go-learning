@@ -32,6 +32,11 @@ func LoggerToFile() gin.HandlerFunc {
 	}
 }
 
+type Params struct {
+	Name string `json:"name,omitempty" uri:"name" binding:"required" form:"name"`
+	Age  int    `json:"age,omitempty" uri:"age" binding:"required" form:"age"`
+}
+
 func main() {
 	r := gin.Default()
 
@@ -77,9 +82,4 @@ func getParametersFromBody(c *gin.Context) {
 
 	r.Result = p
 	httputils.SetSuccess(c, r)
-}
-
-type Params struct {
-	Name string `json:"name,omitempty" uri:"name" binding:"required" form:"name"`
-	Age  int    `json:"age,omitempty" uri:"age" binding:"required" form:"age"`
 }
