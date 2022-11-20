@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
-
+	"io/ioutil"
 	"net/http"
 
-	"github.com/caoyingjunz/gopixiu/api/server/httputils"
 	"github.com/gin-gonic/gin"
+
+	"github.com/caoyingjunz/gopixiu/api/server/httputils"
 )
 
 // Auth 认证
@@ -27,9 +30,11 @@ func Limiter(c *gin.Context) {
 
 func Audit() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Next()
+		var p Objects
+		_ = ShouldBindWith(c, &p)
 
-		fmt.Println("audit")
+		c.Next()
+		fmt.Println(c.Value("name"))
 	}
 }
 
@@ -40,9 +45,31 @@ func LoggerToFile() gin.HandlerFunc {
 	}
 }
 
+func ShouldBindWith(c *gin.Context, v interface{}) error {
+	rawData, err := c.GetRawData()
+	if err != nil {
+		return err
+	}
+
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(rawData))
+	if err = json.Unmarshal(rawData, v); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 type Params struct {
 	Name string `json:"name,omitempty" uri:"name" binding:"required" form:"name"`
 	Age  int    `json:"age,omitempty" uri:"age" binding:"required" form:"age"`
+}
+
+type Objects struct {
+	Metadata Metadata `json:"metadata"`
+}
+
+type Metadata struct {
+	Name string `json:"name"`
 }
 
 func main() {
@@ -54,10 +81,24 @@ func main() {
 		g1.GET("/detail", getParametersFromQuery)
 		g1.GET("/name/:name/age/:age", getParametersFromPath)
 		g1.POST("/create", getParametersFromBody)
+		g1.PUT("/update", updateObject)
 	}
 
 	// TODO: the other groups
 	_ = r.Run()
+}
+
+func updateObject(c *gin.Context) {
+	r := httputils.NewResponse()
+	var p Objects
+	if err := c.ShouldBindJSON(&p); err != nil {
+		fmt.Println("ERROR", err)
+		httputils.SetFailed(c, r, err)
+		return
+	}
+
+	r.Result = p
+	httputils.SetSuccess(c, r)
 }
 
 func getParametersFromQuery(c *gin.Context) {
@@ -84,10 +125,14 @@ func getParametersFromPath(c *gin.Context) {
 func getParametersFromBody(c *gin.Context) {
 	r := httputils.NewResponse()
 	var p Params
-	_ = c.ShouldBindJSON(&p)
+	if err := c.ShouldBindJSON(&p); err != nil {
+		httputils.SetFailed(c, r, err)
+		return
+	}
 
 	// do something
-
 	r.Result = p
 	httputils.SetSuccess(c, r)
+
+	c.Set("name", "caoyingjunz")
 }
