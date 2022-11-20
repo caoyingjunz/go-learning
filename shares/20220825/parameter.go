@@ -25,6 +25,14 @@ func Limiter(c *gin.Context) {
 	fmt.Println("limiter")
 }
 
+func Audit() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+
+		fmt.Println("audit")
+	}
+}
+
 // LoggerToFile 日志
 func LoggerToFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -40,7 +48,7 @@ type Params struct {
 func main() {
 	r := gin.Default()
 
-	r.Use(LoggerToFile(), Limiter, Auth) // 中间件
+	r.Use(LoggerToFile(), Limiter, Auth, Audit()) // 中间件
 	g1 := r.Group("/v1")
 	{
 		g1.GET("/detail", getParametersFromQuery)
