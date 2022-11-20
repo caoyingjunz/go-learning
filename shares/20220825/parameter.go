@@ -30,8 +30,13 @@ func Limiter(c *gin.Context) {
 
 func Audit() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var p Objects
-		_ = ShouldBindWith(c, &p)
+		obj := struct {
+			Metadata struct {
+				Name string `json:"name"`
+			} `json:"metadata"`
+		}{}
+
+		_ = ShouldBindWith(c, &obj)
 
 		c.Next()
 		fmt.Println(c.Value("name"))
@@ -92,7 +97,6 @@ func updateObject(c *gin.Context) {
 	r := httputils.NewResponse()
 	var p Objects
 	if err := c.ShouldBindJSON(&p); err != nil {
-		fmt.Println("ERROR", err)
 		httputils.SetFailed(c, r, err)
 		return
 	}
