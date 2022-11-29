@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"text/template"
+
+	"github.com/Masterminds/sprig/v3"
+	"gopkg.in/yaml.v2"
 
 	pt "go-learning/practise/template-practise/template"
 )
@@ -40,10 +44,25 @@ type Person struct {
 	Emails   []string          `json:"emails"`
 	Friends  []Friend          `json:"friends"`
 	Mods     map[string]string `json:"mods"`
+	Data     string
 }
 
-func MergeBytes(mBytes ...[]byte) []byte {
-	return bytes.Join(mBytes, []byte(YAMLDocumentSeparator))
+func MergeBytes(data ...[]byte) []byte {
+	return bytes.Join(data, []byte(YAMLDocumentSeparator))
+}
+
+func toYAML(in interface{}) (string, error) {
+	data, err := yaml.Marshal(in)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Trim(string(data), "\n"), nil
+}
+
+type Test struct {
+	Name string `yaml:"name"`
+	Age  string `yaml:"age"`
 }
 
 func main() {
@@ -51,11 +70,13 @@ func main() {
 		Name: "name",
 	}
 
+	data, _ := toYAML(Test{Name: "caoyingjunz", Age: "18"})
+
 	emails := make([]string, 0)
 	emails = append(emails, "test1@gmail.com")
 	emails = append(emails, "test2@gmail.com")
 
-	tpl := template.New("test")
+	tpl := template.New("test").Funcs(sprig.TxtFuncMap())
 	tpl = template.Must(tpl.Parse(pt.ServiceTemplate))
 
 	m := make(map[string]string)
@@ -67,6 +88,7 @@ func main() {
 		Emails:   emails,
 		Friends:  []Friend{fri},
 		Mods:     m,
+		Data:     data,
 	}
 
 	f, err := os.Create("./service.yaml")

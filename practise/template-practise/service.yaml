@@ -11,3 +11,5 @@ spec:
     app: name
     m1: v1
     m2: v2
+    name: caoyingjunz
+    age: "18"
