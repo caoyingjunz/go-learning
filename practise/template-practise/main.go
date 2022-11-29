@@ -47,8 +47,8 @@ type Person struct {
 	Data     string
 }
 
-func MergeBytes(mBytes ...[]byte) []byte {
-	return bytes.Join(mBytes, []byte(YAMLDocumentSeparator))
+func MergeBytes(data ...[]byte) []byte {
+	return bytes.Join(data, []byte(YAMLDocumentSeparator))
 }
 
 func toYAML(in interface{}) (string, error) {
