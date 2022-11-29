@@ -3,6 +3,7 @@ module go-learning
 go 1.16
 
 require (
+	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/caoyingjunz/gopixiu v0.0.0-20220823143354-8acc52e00d65
 	github.com/casbin/casbin/v2 v2.56.0
 	github.com/casbin/gorm-adapter/v3 v3.12.1
