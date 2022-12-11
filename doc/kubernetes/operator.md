@@ -12,9 +12,13 @@ or
 brew install operator-sdk
 ```
 
-### 初始化项目
+### 文档
 * [官方文档](https://sdk.operatorframework.io/docs/building-operators/golang/quickstart/)
 * [Example](http://www.dockone.io/article/8733)
+
+### 版本要求
+- golang 1.17
+- operator-sdk v1.21.0
 
 ### 初始化 operator 项目
 ```
@@ -30,7 +34,6 @@ operator-sdk create api --group pixiu --version v1alpha1 --kind PodSet --resourc
 ```
 
 ### 生成 CRD 然后 apply, 生成 yaml 存放在 config/crd/bases
-
 ```
 make install
 ```
@@ -46,7 +49,7 @@ docker push jacky06/podset-operator:v0.0.1
 
 ### 部署 PodSet CRD
 
-crd 来自 [podset-operator](https://github.com/caoyingjunz/podset-operator/blob/master/deploy/crds/kubez_podsets_crd.yaml)
+crd 来自 [podset-operator](https://github.com/caoyingjunz/podset-operator/tree/master/config/crd)
 
 ```
 kubectl apply -f deploy/crds/kubez_podsets_crd.yaml
