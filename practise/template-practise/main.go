@@ -47,8 +47,22 @@ type Person struct {
 	Data     string
 }
 
-func MergeBytes(mBytes ...[]byte) []byte {
-	return bytes.Join(mBytes, []byte(YAMLDocumentSeparator))
+func MergeBytes(data ...[]byte) []byte {
+	return bytes.Join(data, []byte(YAMLDocumentSeparator))
+}
+
+func toYAML(in interface{}) (string, error) {
+	data, err := yaml.Marshal(in)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Trim(string(data), "\n"), nil
+}
+
+type Test struct {
+	Name string `yaml:"name"`
+	Age  string `yaml:"age"`
 }
 
 func toYAML(in interface{}) (string, error) {
