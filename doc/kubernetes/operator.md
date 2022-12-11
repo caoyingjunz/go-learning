@@ -32,6 +32,11 @@ operator-sdk init --domain pixiu.io --repo github.com/caoyingjunz/podset-operato
 operator-sdk create api --group pixiu --version v1alpha1 --kind PodSet --resource --controller
 ```
 
+### 创建 Webhook
+``` bash
+operator-sdk create webhook --group pixiu --version v1alpha1 --kind PodSet --defaulting --programmatic-validation
+```
+
 ### 生成 CRD, 生成 yaml 存放在 config/crd/bases
 ``` bash
 make manifests
