@@ -39,7 +39,28 @@ make install
 ```
 
 ### 自定义控制器代码
-TODO
+```go
+// Reconcile is part of the main kubernetes reconciliation loop which aims to
+// move the current state of the cluster closer to the desired state.
+func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	log := r.Log.WithValues("request", req)
+	log.Info("reconciling operator")
+
+	podSet := &pixiuv1alpha1.PodSet{}
+	if err := r.Get(ctx, req.NamespacedName, podSet); err != nil {
+		if apierrors.IsNotFound(err) {
+			// Req object not found, Created objects are automatically garbage collected.
+			// For additional cleanup logic use finalizers.
+			// Return and don't requeue
+			return reconcile.Result{}, nil
+		} else {
+			log.Error(err, "error requesting pod set operator")
+			// Error reading the object - requeue the request.
+			return reconcile.Result{Requeue: true}, nil
+		}
+	}
+    ...
+```
 
 ### Build and push image
 ```
