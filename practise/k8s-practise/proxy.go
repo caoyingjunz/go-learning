@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/url"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
@@ -31,12 +32,23 @@ func proxyHandler(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+	target, err := parseTarget(*c.Request.URL, config.Host)
+	if err != nil {
+		panic(err)
+	}
 
-	l := *c.Request.URL
-	l.Host = "59.111.229.69:6443"
-	l.Scheme = "https"
-
-	httpProxy := proxy.NewUpgradeAwareHandler(&l, transport, true, false, nil)
+	httpProxy := proxy.NewUpgradeAwareHandler(target, transport, false, false, nil)
 	httpProxy.UpgradeTransport = proxy.NewUpgradeRequestRoundTripper(transport, transport)
 	httpProxy.ServeHTTP(c.Writer, c.Request)
+}
+
+func parseTarget(target url.URL, host string) (*url.URL, error) {
+	kubeURL, err := url.Parse(host)
+	if err != nil {
+		return nil, err
+	}
+
+	target.Host = kubeURL.Host
+	target.Scheme = kubeURL.Scheme
+	return &target, nil
 }
