@@ -17,7 +17,7 @@ func main() {
 	route := gin.Default()
 
 	// gin 指定代理，apis 原始请求转发到 k8s APIServer
-	route.Any("/apis/*proxy", proxyHandler)
+	route.Any("/*proxy", proxyHandler)
 
 	_ = route.Run(":8090")
 }
