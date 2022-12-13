@@ -10,11 +10,13 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
+// 请求验证 curl 127.0.0.1:8090/apis/apps/v1/namespaces/default/deployments/toolbox
+
 func main() {
 	route := gin.Default()
 
-	// gin 制作代理，原始请求转发到 k8s APIServer
-	route.Any("/apis/*action", proxyHandler)
+	// gin 指定代理，apis 原始请求转发到 k8s APIServer
+	route.Any("/apis/*proxy", proxyHandler)
 
 	_ = route.Run(":8090")
 }
@@ -30,11 +32,11 @@ func proxyHandler(c *gin.Context) {
 		panic(err)
 	}
 
-	s := *c.Request.URL
-	s.Host = "175.102.24.135:6443"
-	s.Scheme = "https"
+	l := *c.Request.URL
+	l.Host = "59.111.229.69:6443"
+	l.Scheme = "https"
 
-	httpProxy := proxy.NewUpgradeAwareHandler(&s, transport, true, false, nil)
+	httpProxy := proxy.NewUpgradeAwareHandler(&l, transport, true, false, nil)
 	httpProxy.UpgradeTransport = proxy.NewUpgradeRequestRoundTripper(transport, transport)
 	httpProxy.ServeHTTP(c.Writer, c.Request)
 }
