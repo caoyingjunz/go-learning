@@ -65,20 +65,6 @@ type Test struct {
 	Age  string `yaml:"age"`
 }
 
-func toYAML(in interface{}) (string, error) {
-	data, err := yaml.Marshal(in)
-	if err != nil {
-		return "", err
-	}
-
-	return strings.Trim(string(data), "\n"), nil
-}
-
-type Test struct {
-	Name string `yaml:"name"`
-	Age  string `yaml:"age"`
-}
-
 func main() {
 	fri := Friend{
 		Name: "name",
