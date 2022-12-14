@@ -25,10 +25,13 @@ func main() {
 		panic(err)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	sharedInformers := informers.NewSharedInformerFactory(clientSet, 0)
 	// refer to https://github.com/kubernetes/kubernetes/blob/ea0764452222146c47ec826977f49d7001b0ea8c/staging/src/k8s.io/client-go/dynamic/dynamicinformer/informer_test.go#L107
-	// TODO: 可以追加更多的 gvr
 
+	// TODO: 可以追加更多的 gvr
 	gvrs := []schema.GroupVersionResource{
 		{Group: "apps", Version: "v1", Resource: "deployments"},
 		{Group: "", Version: "v1", Resource: "pods"},
@@ -39,14 +42,12 @@ func main() {
 		}
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 	// Start all informers.
 	sharedInformers.Start(ctx.Done())
 	// Wait for all caches to sync.
 	sharedInformers.WaitForCacheSync(ctx.Done())
 
-	log.Printf("informers has been started")
+	log.Printf("all informers has been started")
 
 	// 构造 pod podLister，用于 gin 的查询
 	podLister := sharedInformers.Core().V1().Pods().Lister()
