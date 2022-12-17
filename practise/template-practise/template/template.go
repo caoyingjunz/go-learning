@@ -21,5 +21,7 @@ spec:
 {{- range $m, $v := .Mods }}
     {{ $m }}: {{ $v }}
 {{- end }}
+
+{{- .Data | nindent 4 }}
 `
 )
