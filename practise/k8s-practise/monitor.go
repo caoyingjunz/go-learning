@@ -15,6 +15,8 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"k8s.io/controller-manager/pkg/clientbuilder"
+
+	"go-learning/practise/k8s-practise/app"
 )
 
 const ResourceResyncTime time.Duration = 0
@@ -47,9 +49,9 @@ func main() {
 	versionedClient := rootClientBuilder.ClientOrDie("shared-informers")
 	sharedInformers = informers.NewSharedInformerFactory(versionedClient, ResourceResyncTime)
 
-	//if err := genericcontrollermanager.WaitForAPIServer(versionedClient, 10*time.Second); err != nil {
-	//	panic(fmt.Errorf("failed to wait for apiserver being healthy: %v", err))
-	//}
+	if err := app.WaitForAPIServer(versionedClient, 10*time.Second); err != nil {
+		panic(fmt.Errorf("failed to wait for apiserver being healthy: %v", err))
+	}
 
 	stopCh := make(chan struct{})
 	// Use a discovery client capable of being refreshed.
