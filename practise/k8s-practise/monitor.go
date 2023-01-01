@@ -7,6 +7,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/wait"
 	cacheddiscovery "k8s.io/client-go/discovery/cached"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/restmapper"
@@ -46,10 +47,18 @@ func main() {
 	versionedClient := rootClientBuilder.ClientOrDie("shared-informers")
 	sharedInformers = informers.NewSharedInformerFactory(versionedClient, ResourceResyncTime)
 
+	//if err := genericcontrollermanager.WaitForAPIServer(versionedClient, 10*time.Second); err != nil {
+	//	panic(fmt.Errorf("failed to wait for apiserver being healthy: %v", err))
+	//}
+
+	stopCh := make(chan struct{})
 	// Use a discovery client capable of being refreshed.
 	discoveryClient := rootClientBuilder.DiscoveryClientOrDie("controller-discovery")
 	cachedClient := cacheddiscovery.NewMemCacheClient(discoveryClient)
 	restMapper = restmapper.NewDeferredDiscoveryRESTMapper(cachedClient)
+	go wait.Until(func() {
+		restMapper.Reset()
+	}, 30*time.Second, stopCh)
 
 	gvrs := []schema.GroupVersionResource{
 		{Group: "apps", Version: "v1", Resource: "deployments"},
@@ -70,7 +79,6 @@ func main() {
 		monitors[gvr] = &monitor{store: s, controller: c}
 	}
 
-	stopCh := make(chan struct{})
 	for kind, monitor := range monitors {
 		if monitor.stopCh == nil {
 			monitor.stopCh = make(chan struct{})
