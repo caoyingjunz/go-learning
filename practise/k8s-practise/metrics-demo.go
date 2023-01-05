@@ -63,11 +63,6 @@ func main() {
 		fmt.Println("podMetric", podMetric)
 	}
 
-	gr := schema.GroupResource{
-		Group:    "apps",
-		Resource: "deployments",
-	}
-
 	// 更新 scale
 	//_, err = scaleClient.Scales("default").Update(context.TODO(), gr, &autoscalingapi.Scale{
 	//	ObjectMeta: metav1.ObjectMeta{
