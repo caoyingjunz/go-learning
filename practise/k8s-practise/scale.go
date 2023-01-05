@@ -37,7 +37,7 @@ func main() {
 		panic(err)
 	}
 	newSC := sc.DeepCopy()
-	newSC.Spec.Replicas = 4
+	newSC.Spec.Replicas = newSC.Spec.Replicas + 1
 	// 更新 scale
 	_, err = scaleClient.Scales("default").Update(context.TODO(), gr, newSC, metav1.UpdateOptions{})
 	if err != nil {
