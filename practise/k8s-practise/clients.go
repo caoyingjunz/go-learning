@@ -21,6 +21,10 @@ const (
 	defaultObject    = "nginx"
 )
 
+var (
+	gvr = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
+)
+
 func main() {
 	config, err := app.BuildClientConfig("")
 	if err != nil {
@@ -47,12 +51,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	unstructured, err := dynamicClient.Resource(schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}).Namespace(defaultNamespace).Get(context.TODO(), defaultObject, metav1.GetOptions{})
+	unstructured, err := dynamicClient.Resource(gvr).Namespace(defaultNamespace).Get(context.TODO(), defaultObject, metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}
 	var deployment apps.Deployment
-	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.UnstructuredContent(), &deployment); err != nil {
+	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, &deployment); err != nil {
 		panic(err)
 	}
 	fmt.Println("dynamic client", deployment.Namespace, deployment.Name)
@@ -65,7 +69,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	obj, err := metadataClient.Resource(schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}).Namespace(defaultNamespace).Get(context.TODO(), defaultObject, metav1.GetOptions{})
+	obj, err := metadataClient.Resource(gvr).Namespace(defaultNamespace).Get(context.TODO(), defaultObject, metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}
