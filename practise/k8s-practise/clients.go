@@ -29,7 +29,7 @@ func main() {
 
 	// 1. ClientSet
 	// 代码地址: k8s.io/client-go/kubernetes
-	// 封装 RESTClient
+	// 调用 k8s 的内置资源，不能访问自定义资源
 	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err)
@@ -41,7 +41,8 @@ func main() {
 	fmt.Println("clientSet", ds.Namespace, ds.Name)
 
 	// 2. DynamicClient
-	//代码地址: k8s.io/client-go/dynamic
+	// 代码地址: k8s.io/client-go/dynamic
+	// 通过 gvr 调用任意 k8s 资源，包括自定义资源
 	dynamicClient, err := dynamic.NewForConfig(config)
 	if err != nil {
 		panic(err)
@@ -56,19 +57,10 @@ func main() {
 	}
 	fmt.Println("dynamic client", deployment.Namespace, deployment.Name)
 
-	// 3. DiscoveryClient
-	// returns the supported resources for all groups and versions.
-	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
-	if err != nil {
-		panic(deployment)
-	}
-	_, APIResources, err := discoveryClient.ServerGroupsAndResources()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("discovery Client", APIResources)
-
-	// 4. metadataClient
+	// 3. MetadataClient
+	// 代码地址: k8s.io/client-go/metadata
+	// 仅获取 k8s 对象的元数据
+	// get access to a particular ObjectMeta schema without knowing the details of the version
 	metadataClient, err := metadata.NewForConfig(config)
 	if err != nil {
 		panic(err)
@@ -77,8 +69,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("metadata Client", obj)
+	fmt.Println("metadata Client", obj.Namespace, obj.Name)
 
-	// 5. scaleClient
-	// TODO
+	// 4. DiscoveryClient
+	// To discover supported resources in the API server
+	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
+	if err != nil {
+		panic(deployment)
+	}
+	// get the supported resources for all groups and versions.
+	_, APIResources, err := discoveryClient.ServerGroupsAndResources()
+	if err != nil {
+		panic(err)
+	}
+	_ = APIResources // 忽略打印
+	fmt.Println("discovery Client")
 }
