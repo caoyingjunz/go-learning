@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	cacheddiscovery "k8s.io/client-go/discovery/cached"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/scale"
 
 	"go-learning/practise/k8s-practise/app"
@@ -22,9 +22,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	cachedClient := cacheddiscovery.NewMemCacheClient(clientSet.Discovery())
 
 	scaleKindResolver := scale.NewDiscoveryScaleKindResolver(clientSet.Discovery())
-	scaleClient, err := scale.NewForConfig(config, restMapper, dynamic.LegacyAPIPathResolverFunc, scaleKindResolver)
+	scaleClient, err := scale.NewForConfig(config, restmapper.NewDeferredDiscoveryRESTMapper(cachedClient), dynamic.LegacyAPIPathResolverFunc, scaleKindResolver)
 
 	gr := schema.GroupResource{
 		Group:    "apps",
@@ -32,7 +33,7 @@ func main() {
 	}
 
 	// 1. 获取 scale
-	sc, err := scaleClient.Scales("default").Get(context.TODO(), gr, "test1", metav1.GetOptions{})
+	sc, err := scaleClient.Scales("default").Get(context.TODO(), gr, "nginx", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -46,5 +47,4 @@ func main() {
 
 	// 2. patch scale
 	// TODO
-	fmt.Println(sc.Spec.Replicas)
 }
