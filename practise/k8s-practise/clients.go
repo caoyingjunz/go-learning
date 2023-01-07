@@ -5,10 +5,10 @@ import (
 	"fmt"
 
 	"go-learning/practise/k8s-practise/app"
+	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/kubernetes/pkg/apis/apps"
 
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
@@ -55,7 +55,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	var deployment apps.Deployment
+	var deployment appsv1.Deployment
 	if err = runtime.DefaultUnstructuredConverter.FromUnstructured(unstructured.Object, &deployment); err != nil {
 		panic(err)
 	}
@@ -76,10 +76,11 @@ func main() {
 	fmt.Println("metadata Client", obj.Namespace, obj.Name)
 
 	// 4. DiscoveryClient
+	// 代码地址: k8s.io/client-go/discovery
 	// To discover supported resources in the API server
 	discoveryClient, err := discovery.NewDiscoveryClientForConfig(config)
 	if err != nil {
-		panic(deployment)
+		panic(err)
 	}
 	// get the supported resources for all groups and versions.
 	_, APIResources, err := discoveryClient.ServerGroupsAndResources()
