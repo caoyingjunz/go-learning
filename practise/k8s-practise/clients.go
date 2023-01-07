@@ -89,4 +89,8 @@ func main() {
 	}
 	_ = APIResources // 忽略打印
 	fmt.Println("discovery Client")
+
+	// 5. scaleClient
+	// 直接调整副本数
+	// https://github.com/caoyingjunz/go-learning/blob/master/practise/k8s-practise/scale.go
 }

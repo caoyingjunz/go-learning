@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	cacheddiscovery "k8s.io/client-go/discovery/cached"
+
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/restmapper"
@@ -32,19 +35,31 @@ func main() {
 		Resource: "deployments",
 	}
 
-	// 1. 获取 scale
+	// 1. 获取 scale, update scale
 	sc, err := scaleClient.Scales("default").Get(context.TODO(), gr, "nginx", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}
 	newSC := sc.DeepCopy()
 	newSC.Spec.Replicas = newSC.Spec.Replicas + 1
-	// 更新 scale
 	_, err = scaleClient.Scales("default").Update(context.TODO(), gr, newSC, metav1.UpdateOptions{})
 	if err != nil {
 		panic(err)
 	}
 
-	// 2. patch scale
-	// TODO
+	//[
+	//{ "op": "test", "path": "/a/b/c", "value": "foo" },
+	//{ "op": "remove", "path": "/a/b/c" },
+	//{ "op": "add", "path": "/a/b/c", "value": [ "foo", "bar" ] },
+	//{ "op": "replace", "path": "/a/b/c", "value": 42 },
+	//{ "op": "move", "from": "/a/b/c", "path": "/a/b/d" },
+	//{ "op": "copy", "from": "/a/b/d", "path": "/a/b/e" }
+	//]
+
+	// 2. scale patch
+	payloadTemplate := `[{ "op": "%s", "path": "/spec/replicas", "value": %s }]`
+	patchPayload := fmt.Sprintf(payloadTemplate, "replace", "1")
+	if _, err = scaleClient.Scales("default").Patch(context.TODO(), gr.WithVersion("v1"), "nginx", types.JSONPatchType, []byte(patchPayload), metav1.PatchOptions{}); err != nil {
+		panic(err)
+	}
 }
