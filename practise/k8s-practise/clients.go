@@ -93,4 +93,8 @@ func main() {
 	// 5. scaleClient
 	// 直接调整副本数
 	// https://github.com/caoyingjunz/go-learning/blob/master/practise/k8s-practise/scale.go
+
+	// 6. metricClient
+	// 获取资源的 metric
+	// https://github.com/caoyingjunz/go-learning/blob/master/practise/k8s-practise/metrics.go
 }
