@@ -40,4 +40,5 @@ require (
 	k8s.io/cri-api v0.23.1
 	k8s.io/klog/v2 v2.30.0
 	k8s.io/kubectl v0.23.5
+	k8s.io/metrics v0.23.5
 )
