@@ -32,17 +32,12 @@ require (
 	gorm.io/driver/mysql v1.4.1
 	gorm.io/gorm v1.24.0
 	k8s.io/api v0.23.5
-	k8s.io/apiextensions-apiserver v0.23.5 // indirect
 	k8s.io/apimachinery v0.23.5
 	k8s.io/cli-runtime v0.23.5
 	k8s.io/client-go v0.23.5
 	k8s.io/component-base v0.23.5
 	k8s.io/controller-manager v0.23.5
 	k8s.io/cri-api v0.23.1
-	k8s.io/heapster v1.5.4 // indirect
-	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.30.0
 	k8s.io/kubectl v0.23.5
-	k8s.io/kubernetes v1.13.0
-	k8s.io/metrics v0.23.5
 )
