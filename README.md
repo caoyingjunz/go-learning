@@ -11,6 +11,7 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 - workload 自动扩缩容 [piuxiu-autoscaler](https://github.com/caoyingjunz/pixiu-autoscaler)
 
 ## Kubernetes
+- [clients 用法讲解](./practise/k8s-practise/clients.go)
 - [kubectl plugin 源码分析](./doc/kubernetes/kubectl-plugin.md)
 - [proxy 源码分析](./doc/kubernetes/proxy.md)
 - [scheduler 源码分析一 - 启动](./doc/kubernetes/scheduler-start.md)
