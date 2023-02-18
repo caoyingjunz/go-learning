@@ -22,9 +22,10 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
+	github.com/xuri/excelize/v2 v2.7.0
 	go.etcd.io/etcd/client/v3 v3.5.0
 	go.uber.org/zap v1.22.0
-	golang.org/x/crypto v0.0.0-20221005025214-4161e89ecf1b
+	golang.org/x/crypto v0.5.0
 	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
