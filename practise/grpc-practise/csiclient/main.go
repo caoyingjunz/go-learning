@@ -19,10 +19,11 @@ var (
 )
 
 func main() {
+	flag.Parse()
+
 	// Unused metrics manager, necessary for connection.Connect below
 	cmm := metrics.NewCSIMetricsManagerForSidecar("")
 
-	fmt.Println("csiAddress", *csiAddress)
 	klog.V(0).Infof("Attempting to open a gRPC connection with: %q", *csiAddress)
 	csiConn, err := connection.Connect(*csiAddress, cmm)
 	if err != nil {
