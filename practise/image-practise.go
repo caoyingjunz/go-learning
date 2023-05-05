@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/caoyingjunz/pixiulib/exec"
@@ -31,6 +32,10 @@ type KubeadmVersion struct {
 	ClientVersion struct {
 		GitVersion string `json:"git_version"`
 	} `json:"clientVersion"`
+}
+
+type KubeadmImage struct {
+	Images []string `json:"images"`
 }
 
 func (img *image) Validate() error {
@@ -69,10 +74,45 @@ func (img *image) getKubeadmVersion() (string, error) {
 }
 
 func (img *image) getImages() ([]string, error) {
-	return nil, nil
+	cmd := []string{Kubeadm, "config", "images", "list", "--kubernetes-version", img.kubernetesVersion, "-o", "json"}
+	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to exec kubeadm config images list %v %v", string(out), err)
+	}
+
+	var kubeadmImage KubeadmImage
+	if err := json.Unmarshal(out, &kubeadmImage); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal kubeadm images %v", err)
+	}
+
+	return kubeadmImage.Images, nil
 }
 
 func (img *image) doPush(imageToPush string) error {
+	// real image to push
+	parts := strings.Split(imageToPush, "/")
+	if len(parts) < 2 {
+		return fmt.Errorf("invaild image format: %s", imageToPush)
+	}
+	targetImage := img.imageRepository + "/" + parts[len(parts)-1]
+
+	klog.Infof("starting pull image %s", imageToPush)
+
+	// start pull
+	cmd := []string{Docker, "pull", imageToPush}
+	if _, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput(); err != nil {
+		klog.Errorf("failed to pull %s: %v", imageToPush, err)
+		return err
+	}
+
+	klog.Infof("tag %s to %s", imageToPush, targetImage)
+	tagCmd := []string{Docker, "tag", imageToPush, targetImage}
+	if _, err := img.exec.Command(tagCmd[0], tagCmd[1:]...).CombinedOutput(); err != nil {
+		klog.Errorf("failed to tag %s to %s: %v", imageToPush, targetImage, err)
+		return err
+	}
+
+	klog.Infof("starting push image %s", imageToPush)
 
 	return nil
 }
@@ -82,6 +122,8 @@ func (img *image) Push() error {
 	if err != nil {
 		return err
 	}
+	klog.V(2).Infof("kubeadm get images: %v", imgs)
+
 	diff := len(imgs)
 	errCh := make(chan error, diff)
 
