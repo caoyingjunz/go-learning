@@ -97,7 +97,6 @@ func (img *image) doPush(imageToPush string) error {
 	targetImage := img.imageRepository + "/" + parts[len(parts)-1]
 
 	klog.Infof("starting pull image %s", imageToPush)
-
 	// start pull
 	cmd := []string{Docker, "pull", imageToPush}
 	if _, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput(); err != nil {
@@ -113,7 +112,13 @@ func (img *image) doPush(imageToPush string) error {
 	}
 
 	klog.Infof("starting push image %s", imageToPush)
+	pushCmd := []string{Docker, "push", targetImage}
+	if _, err := img.exec.Command(pushCmd[0], pushCmd[1:]...).CombinedOutput(); err != nil {
+		klog.Errorf("failed to push %s: %v", imageToPush, err)
+		return err
+	}
 
+	klog.Infof("complete push image %s", imageToPush)
 	return nil
 }
 
