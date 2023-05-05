@@ -21,9 +21,6 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 - [CSI 注册机制源码分析](./doc/kubernetes/csi.md)
 - [cloud-provider-openstack](https://github.com/kubernetes/cloud-provider-openstack)
 
-## Golang
-- [Golang 快速入门](./doc/golang/road.md)
-
 ## Examples
 - [Examples](./examples/README.md) 提供丰富的 `kubernetes` 用法举例.
 - [pixiuctl](https://github.com/caoyingjunz/go-learning/tree/master/practise/cobra-practise/pixiuctl) 基于 [cobra](https://github.com/spf13/cobra) 实现命令行

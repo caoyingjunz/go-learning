@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/caoyingjunz/gopixiu v0.0.0-20220823143354-8acc52e00d65
+	github.com/caoyingjunz/pixiulib v0.0.0-20230410123811-8e48eda6d576
 	github.com/casbin/casbin/v2 v2.56.0
 	github.com/casbin/gorm-adapter/v3 v3.12.1
 	github.com/container-storage-interface/spec v1.7.0 // indirect

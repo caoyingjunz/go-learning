@@ -151,6 +151,8 @@ github.com/bugsnag/panicwrap v0.0.0-20151223152923-e2c28503fcd0/go.mod h1:D/8v3k
 github.com/caoyingjunz/gopixiu v0.0.0-20220823143354-8acc52e00d65 h1:tO9qDQkjOYmVNvp38OvgArY298mJmigIHM6cWeyYUWQ=
 github.com/caoyingjunz/gopixiu v0.0.0-20220823143354-8acc52e00d65/go.mod h1:p8dF33nTrvmvkYf+2RfSX9WXupzIs9IazgEXSPrn57U=
 github.com/caoyingjunz/pixiulib v0.0.0-20220819163605-c3c10ec3ed3c/go.mod h1:rQFvtjWLu4D7VSo6H/bI8h0tyWneUtuJJM+AcZBalPk=
+github.com/caoyingjunz/pixiulib v0.0.0-20230410123811-8e48eda6d576 h1:UxZXYkmfs4SCwGMp9IoyGcQuB18Zd3LT1V4k+9TRxL8=
+github.com/caoyingjunz/pixiulib v0.0.0-20230410123811-8e48eda6d576/go.mod h1:JudNUfsx+eGUfrrNDb1Ab2TrwtWFpf5AnrbKPj/VzYI=
 github.com/casbin/casbin/v2 v2.55.1/go.mod h1:vByNa/Fchek0KZUgG5wEsl7iFsiviAYKRtgrQfcJqHg=
 github.com/casbin/casbin/v2 v2.56.0 h1:4qM+hDfj+i9M6lBbguafWKE/8tJA+9vRY5+l0ZB5WTo=
 github.com/casbin/casbin/v2 v2.56.0/go.mod h1:vByNa/Fchek0KZUgG5wEsl7iFsiviAYKRtgrQfcJqHg=
