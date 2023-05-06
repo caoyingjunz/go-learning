@@ -5,11 +5,13 @@ go 1.16
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/caoyingjunz/gopixiu v0.0.0-20220823143354-8acc52e00d65
+	github.com/caoyingjunz/pixiulib v0.0.0-20230410123811-8e48eda6d576
 	github.com/casbin/casbin/v2 v2.56.0
 	github.com/casbin/gorm-adapter/v3 v3.12.1
 	github.com/container-storage-interface/spec v1.7.0 // indirect
 	github.com/containerd/containerd v1.6.1
 	github.com/denisenkom/go-mssqldb v0.12.0 // indirect
+	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7
 	github.com/emicklei/go-restful v2.9.5+incompatible
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gin-gonic/gin v1.8.1
