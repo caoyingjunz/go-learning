@@ -31,7 +31,7 @@ func main() {
 		klog.Fatal(err)
 	}
 
-	if err := img.Push(); err != nil {
+	if err := img.PushImages(); err != nil {
 		klog.Fatal(err)
 	}
 }

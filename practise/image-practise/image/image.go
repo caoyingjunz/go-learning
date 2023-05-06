@@ -10,15 +10,13 @@ import (
 	"sync"
 
 	"github.com/caoyingjunz/pixiulib/exec"
-	"k8s.io/klog/v2"
-
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
+	"k8s.io/klog/v2"
 )
 
 const (
 	Kubeadm = "kubeadm"
-	Docker  = "docker"
 )
 
 type KubeadmVersion struct {
@@ -93,6 +91,7 @@ func (img *Image) getKubeadmVersion() (string, error) {
 	if err := json.Unmarshal(out, &kubeadmVersion); err != nil {
 		return "", fmt.Errorf("failed to unmarshal kubeadm version %v", err)
 	}
+	klog.V(2).Infof("kubeadmVersion %+v", kubeadmVersion)
 
 	return kubeadmVersion.ClientVersion.GitVersion, nil
 }
@@ -109,16 +108,25 @@ func (img *Image) getImages() ([]string, error) {
 		return nil, fmt.Errorf("failed to unmarshal kubeadm images %v", err)
 	}
 
+	klog.V(2).Infof("kubeadmImage %+v", kubeadmImage)
 	return kubeadmImage.Images, nil
 }
 
-func (img *Image) doPush(imageToPush string) error {
+func (img *Image) parseTargetImage(imageToPush string) (string, error) {
 	// real image to push
 	parts := strings.Split(imageToPush, "/")
 	if len(parts) < 2 {
-		return fmt.Errorf("invaild image format: %s", imageToPush)
+		return "", fmt.Errorf("invaild image format: %s", imageToPush)
 	}
-	targetImage := img.ImageRepository + "/" + parts[len(parts)-1]
+
+	return img.ImageRepository + "/" + parts[len(parts)-1], nil
+}
+
+func (img *Image) doPushImage(imageToPush string) error {
+	targetImage, err := img.parseTargetImage(imageToPush)
+	if err != nil {
+		return err
+	}
 
 	klog.Infof("starting pull image %s", imageToPush)
 	// start pull
@@ -147,7 +155,7 @@ func (img *Image) doPush(imageToPush string) error {
 	return nil
 }
 
-func (img *Image) Push() error {
+func (img *Image) PushImages() error {
 	imgs, err := img.getImages()
 	if err != nil {
 		return err
@@ -162,7 +170,7 @@ func (img *Image) Push() error {
 	for _, i := range imgs {
 		go func(imageToPush string) {
 			defer wg.Done()
-			if err := img.doPush(imageToPush); err != nil {
+			if err := img.doPushImage(imageToPush); err != nil {
 				errCh <- err
 			}
 		}(i)
