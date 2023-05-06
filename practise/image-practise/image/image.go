@@ -21,7 +21,7 @@ const (
 
 type KubeadmVersion struct {
 	ClientVersion struct {
-		GitVersion string `json:"git_version"`
+		GitVersion string `json:"gitVersion"`
 	} `json:"clientVersion"`
 }
 
@@ -65,6 +65,13 @@ func (img *Image) Complete() error {
 		return err
 	}
 	img.docker = cli
+	//_, err = img.docker.RegistryLogin(context.TODO(), types.AuthConfig{
+	//	Username: "",
+	//	Password: "",
+	//})
+	//if err != nil {
+	//	return err
+	//}
 
 	img.exec = exec.New()
 	return nil
@@ -108,7 +115,6 @@ func (img *Image) getImages() ([]string, error) {
 		return nil, fmt.Errorf("failed to unmarshal kubeadm images %v", err)
 	}
 
-	klog.V(2).Infof("kubeadmImage %+v", kubeadmImage)
 	return kubeadmImage.Images, nil
 }
 
@@ -143,13 +149,18 @@ func (img *Image) doPushImage(imageToPush string) error {
 		return err
 	}
 
-	klog.Infof("starting push image %s", imageToPush)
-	reader, err = img.docker.ImagePush(context.TODO(), targetImage, types.ImagePushOptions{})
+	klog.Infof("starting push image %s", targetImage)
+	cmd := []string{"docker", "push", targetImage}
+	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
 	if err != nil {
-		klog.Errorf("failed to push %s: %v", imageToPush, err)
-		return err
+		return fmt.Errorf("failed to push image %s %v %v", targetImage, string(out), err)
 	}
-	io.Copy(os.Stdout, reader)
+	//reader, err = img.docker.ImagePush(context.TODO(), targetImage, types.ImagePushOptions{})
+	//if err != nil {
+	//	klog.Errorf("failed to push %s: %v", targetImage, err)
+	//	return err
+	//}
+	//io.Copy(os.Stdout, reader)
 
 	klog.Infof("complete push image %s", imageToPush)
 	return nil
@@ -175,6 +186,7 @@ func (img *Image) PushImages() error {
 			}
 		}(i)
 	}
+	wg.Wait()
 
 	select {
 	case err := <-errCh:
