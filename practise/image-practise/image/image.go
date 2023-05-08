@@ -17,6 +17,11 @@ import (
 
 const (
 	Kubeadm = "kubeadm"
+
+	IgnoreKey = "W0508"
+
+	User     = "user"     // 修改成实际的 docker 用户名
+	Password = "password" // 修改为实际的 docker 密码
 )
 
 type KubeadmVersion struct {
@@ -65,13 +70,10 @@ func (img *Image) Complete() error {
 		return err
 	}
 	img.docker = cli
-	//_, err = img.docker.RegistryLogin(context.TODO(), types.AuthConfig{
-	//	Username: "",
-	//	Password: "",
-	//})
-	//if err != nil {
-	//	return err
-	//}
+
+	if len(img.KubernetesVersion) == 0 {
+		img.KubernetesVersion = os.Getenv("KubernetesVersion")
+	}
 
 	img.exec = exec.New()
 	return nil
@@ -103,12 +105,34 @@ func (img *Image) getKubeadmVersion() (string, error) {
 	return kubeadmVersion.ClientVersion.GitVersion, nil
 }
 
+func (img *Image) cleanImages(in []byte) []byte {
+	inStr := string(in)
+	if !strings.Contains(inStr, IgnoreKey) {
+		return in
+	}
+
+	klog.V(2).Infof("cleaning images: %+v", inStr)
+	parts := strings.Split(inStr, "\n")
+	index := 0
+	for _, p := range parts {
+		if strings.HasPrefix(p, IgnoreKey) {
+			index += 1
+		}
+	}
+	newInStr := strings.Join(parts[index:], "\n")
+	klog.V(2).Infof("cleaned images: %+v", newInStr)
+
+	return []byte(newInStr)
+}
+
 func (img *Image) getImages() ([]string, error) {
 	cmd := []string{Kubeadm, "config", "images", "list", "--kubernetes-version", img.KubernetesVersion, "-o", "json"}
 	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("failed to exec kubeadm config images list %v %v", string(out), err)
 	}
+	out = img.cleanImages(out)
+	klog.V(2).Infof("images is %+v", string(out))
 
 	var kubeadmImage KubeadmImage
 	if err := json.Unmarshal(out, &kubeadmImage); err != nil {
@@ -150,17 +174,12 @@ func (img *Image) doPushImage(imageToPush string) error {
 	}
 
 	klog.Infof("starting push image %s", targetImage)
+
 	cmd := []string{"docker", "push", targetImage}
 	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to push image %s %v %v", targetImage, string(out), err)
 	}
-	//reader, err = img.docker.ImagePush(context.TODO(), targetImage, types.ImagePushOptions{})
-	//if err != nil {
-	//	klog.Errorf("failed to push %s: %v", targetImage, err)
-	//	return err
-	//}
-	//io.Copy(os.Stdout, reader)
 
 	klog.Infof("complete push image %s", imageToPush)
 	return nil
@@ -175,6 +194,13 @@ func (img *Image) PushImages() error {
 
 	diff := len(imgs)
 	errCh := make(chan error, diff)
+
+	// 登陆
+	cmd := []string{"docker", "login", "-u", User, "-p", Password}
+	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to login in image %v %v", string(out), err)
+	}
 
 	var wg sync.WaitGroup
 	wg.Add(diff)
