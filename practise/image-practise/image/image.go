@@ -37,27 +37,42 @@ type KubeadmImage struct {
 type Image struct {
 	KubernetesVersion string
 	ImageRepository   string
+	PushType          string
+	FilePath          string
 
 	exec   exec.Interface
 	docker *client.Client
 }
 
 func (img *Image) Validate() error {
-	if len(img.KubernetesVersion) == 0 {
-		return fmt.Errorf("failed to find kubernetes version")
-	}
+	switch img.PushType {
+	case "", "kubernetes":
+		if len(img.KubernetesVersion) == 0 {
+			return fmt.Errorf("failed to find kubernetes version")
+		}
 
-	// 检查 kubeadm 的版本是否和 k8s 版本一致
-	kubeadmVersion, err := img.getKubeadmVersion()
-	if err != nil {
-		return fmt.Errorf("failed to get kubeadm version: %v", err)
-	}
-	if kubeadmVersion != img.KubernetesVersion {
-		return fmt.Errorf("kubeadm version %s not match kubernetes version %s", kubeadmVersion, img.KubernetesVersion)
+		// 检查 kubeadm 的版本是否和 k8s 版本一致
+		kubeadmVersion, err := img.getKubeadmVersion()
+		if err != nil {
+			return fmt.Errorf("failed to get kubeadm version: %v", err)
+		}
+		if kubeadmVersion != img.KubernetesVersion {
+			return fmt.Errorf("kubeadm version %s not match kubernetes version %s", kubeadmVersion, img.KubernetesVersion)
+		}
+	case "file":
+		_, err := os.Stat(img.FilePath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return fmt.Errorf("failed to find image file")
+			}
+			return err
+		}
+	default:
+		return fmt.Errorf("unsupported image push type: %s", img.PushType)
 	}
 
 	// 检查 docker 的客户端是否正常
-	if _, err = img.docker.Ping(context.Background()); err != nil {
+	if _, err := img.docker.Ping(context.Background()); err != nil {
 		return err
 	}
 
@@ -73,6 +88,9 @@ func (img *Image) Complete() error {
 
 	if len(img.KubernetesVersion) == 0 {
 		img.KubernetesVersion = os.Getenv("KubernetesVersion")
+	}
+	if len(img.FilePath) == 0 {
+		img.FilePath = "./images.txt"
 	}
 
 	img.exec = exec.New()
@@ -184,13 +202,42 @@ func (img *Image) doPushImage(imageToPush string) error {
 	klog.Infof("complete push image %s", imageToPush)
 	return nil
 }
+func (img *Image) getImagesFromFile() ([]string, error) {
+	data, err := os.ReadFile(img.FilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	var imgs []string
+	for _, i := range strings.Split(string(data), "\n") {
+		imageStr := strings.TrimSpace(i)
+		if len(imageStr) == 0 {
+			continue
+		}
+		if strings.Contains(imageStr, " ") {
+			return nil, fmt.Errorf("error image format: %s", imageStr)
+		}
+
+		imgs = append(imgs, imageStr)
+	}
+
+	return imgs, nil
+}
 
 func (img *Image) PushImages() error {
-	imgs, err := img.getImages()
+	var (
+		imgs []string
+		err  error
+	)
+	if img.PushType == "file" {
+		imgs, err = img.getImagesFromFile()
+	} else {
+		imgs, err = img.getImages()
+	}
 	if err != nil {
 		return err
 	}
-	klog.V(2).Infof("kubeadm get images: %v", imgs)
+	klog.V(2).Infof("get images: %v", imgs)
 
 	diff := len(imgs)
 	errCh := make(chan error, diff)
