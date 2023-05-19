@@ -11,6 +11,9 @@ import (
 var (
 	kubernetesVersion = flag.String("kubernetes-version", "", "Choose a specific Kubernetes version for the control plane")
 	imageRepository   = flag.String("image-repository", "pixiuio", "Choose a container registry to push (default pixiuio")
+
+	pushType = flag.String("type", "", "Choose the image push type")
+	filePath = flag.String("file-path", "", "image file path")
 )
 
 func main() {
@@ -20,6 +23,8 @@ func main() {
 	img := image.Image{
 		ImageRepository:   *imageRepository,
 		KubernetesVersion: *kubernetesVersion,
+		PushType:          *pushType,
+		FilePath:          *filePath,
 	}
 
 	if err := img.Complete(); err != nil {
