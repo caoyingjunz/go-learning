@@ -51,6 +51,15 @@ func main() {
 	}
 	fmt.Println("ready", ready)
 
+	// nodeserver
+	nodeClient := csi.NewNodeClient(csiConn)
+	nodeInfo, err := nodeClient.NodeGetInfo(ctx, &csi.NodeGetInfoRequest{})
+	if err != nil {
+		klog.Errorf("error NodeGetInfo: %v", err)
+		os.Exit(1)
+	}
+	fmt.Println("NodeGetInfo", nodeInfo)
+
 	// controllerserver rpc
 	csiClient := csi.NewControllerClient(csiConn)
 	resp, err := csiClient.CreateVolume(ctx, &csi.CreateVolumeRequest{
