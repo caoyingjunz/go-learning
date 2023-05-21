@@ -53,16 +53,13 @@ func main() {
 
 	// controllerserver rpc
 	csiClient := csi.NewControllerClient(csiConn)
-
-	req := csi.CreateVolumeRequest{
-		Name: "test",
-	}
-
-	resp, err := csiClient.CreateVolume(ctx, &req)
+	resp, err := csiClient.CreateVolume(ctx, &csi.CreateVolumeRequest{
+		Name:               "test-volume",
+		VolumeCapabilities: []*csi.VolumeCapability{},
+	})
 	if err != nil {
 		klog.Errorf("error CreateVolume: %v", err)
 		os.Exit(1)
 	}
 	fmt.Println("create volume", resp)
-
 }
