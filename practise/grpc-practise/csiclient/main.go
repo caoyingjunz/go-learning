@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/container-storage-interface/spec/lib/go/csi"
 	"github.com/kubernetes-csi/csi-lib-utils/connection"
 	"github.com/kubernetes-csi/csi-lib-utils/metrics"
 	csirpc "github.com/kubernetes-csi/csi-lib-utils/rpc"
@@ -35,6 +36,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), *operationTimeout)
 	defer cancel()
 
+	// identityserver rpc
 	csiDriverName, err := csirpc.GetDriverName(ctx, csiConn)
 	if err != nil {
 		klog.Errorf("error retreiving CSI driver name: %v", err)
@@ -48,4 +50,16 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println("ready", ready)
+
+	// controllerserver rpc
+	csiClient := csi.NewControllerClient(csiConn)
+	resp, err := csiClient.CreateVolume(ctx, &csi.CreateVolumeRequest{
+		Name:               "test-volume",
+		VolumeCapabilities: []*csi.VolumeCapability{},
+	})
+	if err != nil {
+		klog.Errorf("error CreateVolume: %v", err)
+		os.Exit(1)
+	}
+	fmt.Println("create volume", resp)
 }
