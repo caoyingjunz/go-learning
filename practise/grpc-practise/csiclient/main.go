@@ -7,11 +7,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/container-storage-interface/spec/lib/go/csi"
 	"github.com/kubernetes-csi/csi-lib-utils/connection"
 	"github.com/kubernetes-csi/csi-lib-utils/metrics"
 	csirpc "github.com/kubernetes-csi/csi-lib-utils/rpc"
-
-	"github.com/container-storage-interface/spec/lib/go/csi"
 	"k8s.io/klog/v2"
 )
 
@@ -54,5 +53,16 @@ func main() {
 
 	// controllerserver rpc
 	csiClient := csi.NewControllerClient(csiConn)
-	csiClient.CreateVolume()
+
+	req := csi.CreateVolumeRequest{
+		Name: "test",
+	}
+
+	resp, err := csiClient.CreateVolume(ctx, &req)
+	if err != nil {
+		klog.Errorf("error CreateVolume: %v", err)
+		os.Exit(1)
+	}
+	fmt.Println("create volume", resp)
+
 }
