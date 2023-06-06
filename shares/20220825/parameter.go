@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/caoyingjunz/gopixiu/api/server/httputils"
+	"github.com/caoyingjunz/pixiu/api/server/httputils"
 )
 
 // Auth 认证
