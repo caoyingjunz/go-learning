@@ -18,6 +18,7 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 - [kubernetes 网络分析](./doc/kubernetes/network.md)
 - [kube-proxy 源码分析](./doc/kubernetes/kube-proxy.md)
 - [operator 用法详解](./doc/kubernetes/operator.md)
+- [code-generator](./doc/kubernetes/code-generator.md)
 - [CSI 注册机制源码分析](./doc/kubernetes/csi.md)
 - [cloud-provider-openstack](https://github.com/kubernetes/cloud-provider-openstack)
 
