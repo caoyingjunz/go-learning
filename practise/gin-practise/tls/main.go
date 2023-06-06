@@ -14,5 +14,5 @@ func main() {
 		})
 	})
 
-	r.RunTLS(":443", "/tmp/cert/tls.crt", "/tmp/cert/tls.key")
+	r.RunTLS(":443", "./cert/tls.crt", "./cert/tls.key")
 }
