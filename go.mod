@@ -28,8 +28,7 @@ require (
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
 	github.com/xuri/excelize/v2 v2.7.0
-	go.etcd.io/etcd/client/v3 v3.5.0
-	go.uber.org/goleak v1.2.0 // indirect
+	go.etcd.io/etcd/client/v3 v3.5.1
 	go.uber.org/zap v1.22.0
 	golang.org/x/crypto v0.5.0
 	google.golang.org/grpc v1.49.0
@@ -38,17 +37,15 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.4.1
 	gorm.io/gorm v1.24.0
-	k8s.io/api v0.23.5
-	k8s.io/apimachinery v0.23.5
-	k8s.io/cli-runtime v0.23.5
-	k8s.io/client-go v0.23.5
-	k8s.io/component-base v0.23.5
-	k8s.io/controller-manager v0.23.5
+	k8s.io/api v0.24.8
+	k8s.io/apimachinery v0.24.8
+	k8s.io/cli-runtime v0.24.8
+	k8s.io/client-go v0.24.8
+	k8s.io/component-base v0.24.8
+	k8s.io/controller-manager v0.24.8
 	k8s.io/cri-api v0.23.1
 	k8s.io/klog/v2 v2.80.1
-	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
-	k8s.io/kubectl v0.23.5
-	k8s.io/metrics v0.23.5
+	k8s.io/kubectl v0.24.8
+	k8s.io/metrics v0.24.8
 	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
-	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 )
