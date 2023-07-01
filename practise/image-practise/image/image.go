@@ -37,20 +37,19 @@ type KubeadmImage struct {
 type Image struct {
 	KubernetesVersion string
 	ImageRepository   string
-	PushType          string
 	FilePath          string
 
 	exec   exec.Interface
 	docker *client.Client
+
+	Cfg Config
 }
 
 func (img *Image) Validate() error {
-	switch img.PushType {
-	case "", "kubernetes":
+	if img.Cfg.Default.PushKubernetes {
 		if len(img.KubernetesVersion) == 0 {
 			return fmt.Errorf("failed to find kubernetes version")
 		}
-
 		// 检查 kubeadm 的版本是否和 k8s 版本一致
 		kubeadmVersion, err := img.getKubeadmVersion()
 		if err != nil {
@@ -59,7 +58,10 @@ func (img *Image) Validate() error {
 		if kubeadmVersion != img.KubernetesVersion {
 			return fmt.Errorf("kubeadm version %s not match kubernetes version %s", kubeadmVersion, img.KubernetesVersion)
 		}
-	case "file":
+	}
+
+	// push image 时，images 列表配置文件必须存在
+	if img.Cfg.Default.PushImages {
 		_, err := os.Stat(img.FilePath)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -67,8 +69,6 @@ func (img *Image) Validate() error {
 			}
 			return err
 		}
-	default:
-		return fmt.Errorf("unsupported image push type: %s", img.PushType)
 	}
 
 	// 检查 docker 的客户端是否正常
@@ -86,8 +86,14 @@ func (img *Image) Complete() error {
 	}
 	img.docker = cli
 
-	if len(img.KubernetesVersion) == 0 {
-		img.KubernetesVersion = os.Getenv("KubernetesVersion")
+	if img.Cfg.Default.PushKubernetes {
+		if len(img.KubernetesVersion) == 0 {
+			if len(img.Cfg.Kubernetes.Version) != 0 {
+				img.KubernetesVersion = img.Cfg.Kubernetes.Version
+			} else {
+				img.KubernetesVersion = os.Getenv("KubernetesVersion")
+			}
+		}
 	}
 	if len(img.FilePath) == 0 {
 		img.FilePath = "./images.txt"
@@ -225,21 +231,26 @@ func (img *Image) getImagesFromFile() ([]string, error) {
 }
 
 func (img *Image) PushImages() error {
-	var (
-		imgs []string
-		err  error
-	)
-	if img.PushType == "file" {
-		imgs, err = img.getImagesFromFile()
-	} else {
-		imgs, err = img.getImages()
-	}
-	if err != nil {
-		return err
-	}
-	klog.V(2).Infof("get images: %v", imgs)
+	var images []string
 
-	diff := len(imgs)
+	if img.Cfg.Default.PushKubernetes {
+		kubeImages, err := img.getImages()
+		if err != nil {
+			return fmt.Errorf("获取 k8s 镜像失败: %v", err)
+		}
+		images = append(images, kubeImages...)
+	}
+
+	if img.Cfg.Default.PushImages {
+		fileImages, err := img.getImagesFromFile()
+		if err != nil {
+			return fmt.Errorf("")
+		}
+		images = append(images, fileImages...)
+	}
+
+	klog.V(2).Infof("get images: %v", images)
+	diff := len(images)
 	errCh := make(chan error, diff)
 
 	// 登陆
@@ -251,7 +262,7 @@ func (img *Image) PushImages() error {
 
 	var wg sync.WaitGroup
 	wg.Add(diff)
-	for _, i := range imgs {
+	for _, i := range images {
 		go func(imageToPush string) {
 			defer wg.Done()
 			if err := img.doPushImage(imageToPush); err != nil {
