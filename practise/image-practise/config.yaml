@@ -1,0 +1,3 @@
+default:
+  push_kubernetes: no
+  push_images: yes
