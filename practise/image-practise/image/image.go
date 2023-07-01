@@ -39,6 +39,9 @@ type Image struct {
 	ImageRepository   string
 	FilePath          string
 
+	User     string
+	Password string
+
 	exec   exec.Interface
 	docker *client.Client
 
@@ -97,6 +100,19 @@ func (img *Image) Complete() error {
 	}
 	if len(img.FilePath) == 0 {
 		img.FilePath = "./images.txt"
+	}
+
+	if len(img.User) == 0 {
+		img.User = User
+	}
+	if len(img.Password) == 0 {
+		img.Password = Password
+	}
+
+	cmd := []string{"sudo", "apt-get", "install", "-y", fmt.Sprintf("kubeadm=%s-00", img.Cfg.Kubernetes.Version[1:])}
+	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to install kubeadm %v %v", string(out), err)
 	}
 
 	img.exec = exec.New()
@@ -254,7 +270,7 @@ func (img *Image) PushImages() error {
 	errCh := make(chan error, diff)
 
 	// 登陆
-	cmd := []string{"docker", "login", "-u", User, "-p", Password}
+	cmd := []string{"docker", "login", "-u", img.User, "-p", img.Password}
 	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to login in image %v %v", string(out), err)

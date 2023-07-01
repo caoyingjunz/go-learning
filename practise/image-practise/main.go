@@ -13,6 +13,9 @@ var (
 	kubernetesVersion = flag.String("kubernetes-version", "", "Choose a specific Kubernetes version for the control plane")
 	imageRepository   = flag.String("image-repository", "pixiuio", "Choose a container registry to push (default pixiuio")
 
+	user     = flag.String("user", "", "docker register user")
+	password = flag.String("password", "", "docker register password")
+
 	filePath = flag.String("file-path", "", "image file path")
 )
 
@@ -33,6 +36,8 @@ func main() {
 		ImageRepository:   *imageRepository,
 		KubernetesVersion: *kubernetesVersion,
 		FilePath:          *filePath,
+		User:              *user,
+		Password:          *password,
 		Cfg:               cfg,
 	}
 
