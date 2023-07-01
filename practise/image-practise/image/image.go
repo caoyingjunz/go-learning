@@ -37,7 +37,6 @@ type KubeadmImage struct {
 type Image struct {
 	KubernetesVersion string
 	ImageRepository   string
-	FilePath          string
 
 	User     string
 	Password string
@@ -60,17 +59,6 @@ func (img *Image) Validate() error {
 		}
 		if kubeadmVersion != img.KubernetesVersion {
 			return fmt.Errorf("kubeadm version %s not match kubernetes version %s", kubeadmVersion, img.KubernetesVersion)
-		}
-	}
-
-	// push image 时，images 列表配置文件必须存在
-	if img.Cfg.Default.PushImages {
-		_, err := os.Stat(img.FilePath)
-		if err != nil {
-			if os.IsNotExist(err) {
-				return fmt.Errorf("failed to find image file")
-			}
-			return err
 		}
 	}
 
@@ -98,9 +86,6 @@ func (img *Image) Complete() error {
 			}
 		}
 	}
-	if len(img.FilePath) == 0 {
-		img.FilePath = "./images.txt"
-	}
 
 	if len(img.User) == 0 {
 		img.User = User
@@ -111,10 +96,12 @@ func (img *Image) Complete() error {
 
 	img.exec = exec.New()
 
-	cmd := []string{"sudo", "apt-get", "install", "-y", fmt.Sprintf("kubeadm=%s-00", img.Cfg.Kubernetes.Version[1:])}
-	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to install kubeadm %v %v", string(out), err)
+	if img.Cfg.Default.PushKubernetes {
+		cmd := []string{"sudo", "apt-get", "install", "-y", fmt.Sprintf("kubeadm=%s-00", img.Cfg.Kubernetes.Version[1:])}
+		out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("failed to install kubeadm %v %v", string(out), err)
+		}
 	}
 	return nil
 }
@@ -225,13 +212,8 @@ func (img *Image) doPushImage(imageToPush string) error {
 	return nil
 }
 func (img *Image) getImagesFromFile() ([]string, error) {
-	data, err := os.ReadFile(img.FilePath)
-	if err != nil {
-		return nil, err
-	}
-
 	var imgs []string
-	for _, i := range strings.Split(string(data), "\n") {
+	for _, i := range img.Cfg.Images {
 		imageStr := strings.TrimSpace(i)
 		if len(imageStr) == 0 {
 			continue

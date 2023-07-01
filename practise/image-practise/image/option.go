@@ -3,6 +3,7 @@ package image
 type Config struct {
 	Default    DefaultOption    `yaml:"default"`
 	Kubernetes KubernetesOption `yaml:"kubernetes"`
+	Images     []string         `yaml:"images"`
 }
 
 type DefaultOption struct {

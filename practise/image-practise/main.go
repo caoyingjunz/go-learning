@@ -35,7 +35,6 @@ func main() {
 	img := image.Image{
 		ImageRepository:   *imageRepository,
 		KubernetesVersion: *kubernetesVersion,
-		FilePath:          *filePath,
 		User:              *user,
 		Password:          *password,
 		Cfg:               cfg,
