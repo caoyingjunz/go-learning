@@ -109,13 +109,13 @@ func (img *Image) Complete() error {
 		img.Password = Password
 	}
 
+	img.exec = exec.New()
+
 	cmd := []string{"sudo", "apt-get", "install", "-y", fmt.Sprintf("kubeadm=%s-00", img.Cfg.Kubernetes.Version[1:])}
 	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to install kubeadm %v %v", string(out), err)
 	}
-
-	img.exec = exec.New()
 	return nil
 }
 
