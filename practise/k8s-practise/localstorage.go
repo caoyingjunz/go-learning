@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"github.com/caoyingjunz/csi-driver-localstorage/pkg/client/clientset/versioned"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 )
@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	object, err := lsClientSet.StorageV1().LocalStorages().List(context.TODO(), meta_v1.ListOptions{})
+	object, err := lsClientSet.StorageV1().LocalStorages().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
