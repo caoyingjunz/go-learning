@@ -43,5 +43,5 @@ jobs:
         env:
           GO111MODULE: auto
 
-#      - name: Run go-learning unit test
-#        run: go test -v ./...
+      - name: Run unit test
+        run: go test -v ./...
