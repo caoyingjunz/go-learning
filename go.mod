@@ -19,12 +19,8 @@ require (
 	github.com/hpcloud/tail v1.0.0
 	github.com/jinzhu/gorm v1.9.12
 	github.com/kubernetes-csi/csi-lib-utils v0.11.0
-	github.com/matttproud/golang_protobuf_extensions v1.0.2 // indirect
-	github.com/moby/term v0.0.0-20220808134915-39b0c02b01ae // indirect
-	github.com/onsi/gomega v1.23.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.4
-	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
@@ -48,5 +44,12 @@ require (
 	k8s.io/klog/v2 v2.90.1
 	k8s.io/kubectl v0.24.8
 	k8s.io/metrics v0.24.8
+)
+
+require (
+	github.com/matttproud/golang_protobuf_extensions v1.0.2 // indirect
+	github.com/moby/term v0.0.0-20220808134915-39b0c02b01ae // indirect
+	github.com/onsi/gomega v1.23.0 // indirect
+	github.com/prometheus/client_golang v1.14.0 // indirect
 	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
 )
