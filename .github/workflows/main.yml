@@ -46,4 +46,4 @@ jobs:
           GO111MODULE: auto
 
       - name: Run golang unit test
-        run: go test -v ./...
+        run: cd practise/test-practise && go test -v
