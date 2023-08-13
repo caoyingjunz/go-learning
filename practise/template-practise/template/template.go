@@ -7,9 +7,11 @@ kind: Service
 metadata:
   name: {{ .UserName }}
 spec:
+{{- if gt (len .Emails) 0 }}
   emails:
 {{- range .Emails }}
     - {{ . }}
+{{- end }}
 {{- end }}
   selector:
 {{- with .Friends }}
