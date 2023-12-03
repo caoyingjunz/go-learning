@@ -42,5 +42,4 @@ func main() {
 	}
 
 	fmt.Println("events.Items", events.Items)
-	fmt.Println("events.Items", len(events.Items))
 }
