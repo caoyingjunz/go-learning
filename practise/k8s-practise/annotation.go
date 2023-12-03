@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"go-learning/practise/k8s-practise/app"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+
+	"go-learning/practise/k8s-practise/app"
 )
 
 func main() {
