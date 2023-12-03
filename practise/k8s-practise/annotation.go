@@ -27,5 +27,6 @@ func main() {
 
 	obj.Annotations["testkey"] = "testvalue"
 	_, _ = clientSet.CoreV1().Nodes().Update(context.TODO(), obj, metav1.UpdateOptions{})
+
 	fmt.Println(obj.Annotations)
 }
