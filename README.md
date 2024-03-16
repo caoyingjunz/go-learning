@@ -41,5 +41,6 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 - 微服务学习（istio）
 - gc 机制分析
 - pod 驱逐代码分析
+- deployment 缩容 pod 的逻辑分析
 
 Copyright 2019 caoyingjun (cao.yingjunz@gmail.com) Apache License 2.0
