@@ -13,6 +13,7 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
 ## Kubernetes
 - [clients 用法讲解](./practise/k8s-practise/clients.go)
 - [kubectl plugin 源码分析](./doc/kubernetes/kubectl-plugin.md)
+- [proxy 源码分析](./doc/kubernetes/proxy.md)
 - [scheduler 源码分析一 - 启动](./doc/kubernetes/scheduler-start.md)
 - [scheduler 源码分析二 - 调度](./doc/kubernetes/scheduler-schedule.md)
 - [kubernetes 网络分析](./doc/kubernetes/network.md)
@@ -29,6 +30,7 @@ go-learning 适用于有一定 `kubernetes` 经验，且想更进一步的同学
   - plugin
 - [gRPC Usage](./practise/grpc-practise/README.md)
 - [gin&informer](./practise/k8s-practise/gin-informer.go) 提供 `gin` 调用 `informer` 的用法
+- [gin&proxy](./practise/k8s-practise/proxy.go) 提供 `gin` 调用 `proxy` 的用法展示
 - [webShell](https://github.com/caoyingjunz/kube-webshell) 提供 `webshell` 调用 `kubernetes` `pod` 的用法展示
 - [unit test](./practise/test-practise/README.md)
 
