@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-
 	"github.com/caoyingjunz/pixiulib/config"
 	"k8s.io/klog/v2"
 
@@ -10,8 +9,8 @@ import (
 )
 
 var (
-	kubernetesVersion = flag.String("kubernetes-version", "", "Choose a specific Kubernetes version for the control plane")
-	imageRepository   = flag.String("image-repository", "pixiuio", "Choose a container registry to push (default pixiuio")
+	harbor          = flag.String("harbor", "harbor.cloud.pixiuio.com", "Choose a harbor to push (default harbor.cloud.pixiuio.com")
+	imageRepository = flag.String("image-repository", "pixiuio", "Choose a container registry to push (default pixiuio")
 
 	user     = flag.String("user", "", "docker register user")
 	password = flag.String("password", "", "docker register password")
@@ -33,11 +32,11 @@ func main() {
 	}
 
 	img := image.Image{
-		ImageRepository:   *imageRepository,
-		KubernetesVersion: *kubernetesVersion,
-		User:              *user,
-		Password:          *password,
-		Cfg:               cfg,
+		Harbor:          *harbor,
+		ImageRepository: *imageRepository,
+		User:            *user,
+		Password:        *password,
+		Cfg:             cfg,
 	}
 
 	if err := img.Complete(); err != nil {
