@@ -36,7 +36,9 @@ type KubeadmImage struct {
 
 type Image struct {
 	KubernetesVersion string
-	ImageRepository   string
+
+	Harbor          string
+	ImageRepository string
 
 	User     string
 	Password string
@@ -97,7 +99,9 @@ func (img *Image) Complete() error {
 	img.exec = exec.New()
 
 	if img.Cfg.Default.PushKubernetes {
-		cmd := []string{"sudo", "apt-get", "install", "-y", fmt.Sprintf("kubeadm=%s-00", img.Cfg.Kubernetes.Version[1:])}
+		//cmd := []string{"sudo", "apt-get", "install", "-y", fmt.Sprintf("kubeadm=%s-00", img.Cfg.Kubernetes.Version[1:])}
+		cmd := []string{"sudo", "curl", "-LO", fmt.Sprintf("https://dl.k8s.io/release/%s/bin/linux/amd64/kubeadmt", img.Cfg.Kubernetes.Version)}
+		klog.Infof("Starting install kubeadm", cmd)
 		out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("failed to install kubeadm %v %v", string(out), err)
@@ -176,7 +180,10 @@ func (img *Image) parseTargetImage(imageToPush string) (string, error) {
 		return "", fmt.Errorf("invaild image format: %s", imageToPush)
 	}
 
-	return img.ImageRepository + "/" + parts[len(parts)-1], nil
+	if img.Harbor == "" {
+		return img.ImageRepository + "/" + parts[len(parts)-1], nil
+	}
+	return img.Harbor + "/" + img.ImageRepository + "/" + parts[len(parts)-1], nil
 }
 
 func (img *Image) doPushImage(imageToPush string) error {
@@ -253,6 +260,9 @@ func (img *Image) PushImages() error {
 
 	// 登陆
 	cmd := []string{"docker", "login", "-u", img.User, "-p", img.Password}
+	if img.Harbor != "" {
+		cmd = append(cmd, img.Harbor)
+	}
 	out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to login in image %v %v", string(out), err)
