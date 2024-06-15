@@ -100,9 +100,15 @@ func (img *Image) Complete() error {
 
 	if img.Cfg.Default.PushKubernetes {
 		//cmd := []string{"sudo", "apt-get", "install", "-y", fmt.Sprintf("kubeadm=%s-00", img.Cfg.Kubernetes.Version[1:])}
-		cmd := []string{"sudo", "curl", "-LO", fmt.Sprintf("https://dl.k8s.io/release/%s/bin/linux/amd64/kubeadmt", img.Cfg.Kubernetes.Version)}
+		cmd := []string{"sudo", "curl", "-LO", fmt.Sprintf("https://dl.k8s.io/release/%s/bin/linux/amd64/kubeadm", img.Cfg.Kubernetes.Version)}
 		klog.Infof("Starting install kubeadm", cmd)
 		out, err := img.exec.Command(cmd[0], cmd[1:]...).CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("failed to get kubeadm %v %v", string(out), err)
+		}
+
+		cmd2 := []string{"sudo", "install", "-o", "root", "-g", "root", "-m", "0755", "kubeadm", "/usr/local/bin/kubeadm"}
+		out, err = img.exec.Command(cmd2[0], cmd2[1:]...).CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("failed to install kubeadm %v %v", string(out), err)
 		}
