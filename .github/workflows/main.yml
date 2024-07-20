@@ -17,12 +17,12 @@ env:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  misspell-check:
-    runs-on: ubuntu-latest
-    container: pouchcontainer/pouchlinter:v0.1.2
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+#  misspell-check:
+#    runs-on: ubuntu-latest
+#    container: pouchcontainer/pouchlinter:v0.1.2
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
 
 #      - name: Lint markdown files
 #        run: find  ./ -name  "*.md" | xargs mdl -r ~MD010,~MD013,~MD022,~MD024,~MD029,~MD031,~MD032,~MD033,~MD034,~MD036

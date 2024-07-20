@@ -9,6 +9,11 @@ import (
 	"go-learning/practise/image-practise/image"
 )
 
+const (
+	defaultUser     = "pixiu"
+	defaultPassword = "123456"
+)
+
 var (
 	harbor          = flag.String("harbor", "harbor.cloud.pixiuio.com", "Choose a harbor to push (default harbor.cloud.pixiuio.com")
 	imageRepository = flag.String("image-repository", "pixiuio", "Choose a container registry to push (default pixiuio")
@@ -32,11 +37,20 @@ func main() {
 		klog.Fatal(err)
 	}
 
+	loginUser := *user
+	if len(loginUser) == 0 || loginUser == "--password" {
+		loginUser = defaultUser
+	}
+	loginPassword := *password
+	if len(loginPassword) == 0 {
+		loginPassword = defaultPassword
+	}
+
 	img := image.Image{
 		Harbor:          *harbor,
 		ImageRepository: *imageRepository,
-		User:            *user,
-		Password:        *password,
+		User:            loginUser,
+		Password:        loginPassword,
 		Cfg:             cfg,
 	}
 
