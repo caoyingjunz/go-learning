@@ -38,7 +38,7 @@ func main() {
 	}
 
 	loginUser := *user
-	if len(loginUser) == 0 {
+	if len(loginUser) == 0 || loginUser == "--password" {
 		loginUser = defaultUser
 	}
 	loginPassword := *password
