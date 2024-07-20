@@ -70,6 +70,12 @@ func CopyFromRemote(remoteFile, localFile, user, passwd, host string, port int) 
 	}
 	defer srcFile.Close()
 
+	// 直接读到内存
+	//buf, err := io.ReadAll(srcFile)
+	//if err != nil {
+	//	return nil, err
+	//}
+
 	f, err := os.Create(localFile)
 	if err != nil {
 		return fmt.Errorf("create file %s failed %v", localFile, err)
