@@ -21,7 +21,7 @@ var (
 	user     = flag.String("user", "", "docker register user")
 	password = flag.String("password", "", "docker register password")
 
-	filePath = flag.String("file-path", "", "image file path")
+	filePath = flag.String("configFile", "./config.yaml", "config file")
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 	flag.Parse()
 
 	c := config.New()
-	c.SetConfigFile("./config.yaml")
+	c.SetConfigFile(*filePath)
 	c.SetConfigType("yaml")
 
 	var cfg image.Config
