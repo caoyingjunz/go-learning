@@ -1,0 +1,19 @@
+syntax="proto3";
+
+option go_package = "go-learning/practise/grpc-practise/tunnel/tunnel";
+
+package tunnel;
+
+service Tunnel {
+  // Client 调用此方法建立连接
+  rpc Connect(stream Request) returns (stream Response);
+}
+
+message Request {
+  string type = 1;  // "client_call" 或 "server_call"
+  bytes payload = 2;
+}
+
+message Response {
+  bytes result = 1;
+}
