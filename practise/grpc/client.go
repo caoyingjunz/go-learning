@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"context"
 
 	"log"
-	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -32,6 +30,9 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
+	clientId := "node2"
+
+	// 启动协程，接受服务段回调 client 的请求
 	go func() {
 		for {
 			msg, err := stream.Recv()
@@ -43,15 +44,17 @@ func main() {
 		}
 	}()
 
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		text, _ := reader.ReadString('\n')
-		if err := stream.Send(&pd.Request{
-			Type:    "server_call",
-			Payload: []byte(text),
+	// 启动客户端定时测试DEMO
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		ts := time.Now().String()
+		if err = stream.Send(&pd.Request{
+			Type:    clientId,
+			Payload: []byte(ts),
 		}); err != nil {
-			log.Fatalf("Send failed: %v", err)
+			log.Println("调用服务端失败", err)
 		}
-		time.Sleep(100 * time.Millisecond)
 	}
 }
